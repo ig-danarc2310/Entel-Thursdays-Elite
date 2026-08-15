@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Cupones</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            /* Colores adaptados de la marca */
+            --primary: #002EFF; /* Azul */
+            --accent: #FF4000;  /* Naranja */
+            --bg-color: #000000; /* Fondo Negro */
+            --text-color: #FFFFFF; /* Texto Blanco */
+            --card-bg: #111111; /* Tarjetas oscuras */
+            --border-color: #333333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+        }
+
+        .panel {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(255,255,255,0.05);
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 10px;
+            background-color: #000;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            resize: vertical;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            font-family: monospace;
+        }
+
+        textarea::placeholder {
+            color: #666;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #001fba;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        select, input[type="checkbox"] {
+            padding: 8px;
+            border-radius: 5px;
+            background-color: #000;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .store-group {
+            margin-bottom: 30px;
+        }
+
+        .store-title {
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .coupon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .coupon-card {
+            background: var(--card-bg);
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            position: relative;
+            transition: 0.2s;
+        }
+
+        .coupon-card:hover {
+            border-color: var(--primary);
+        }
+
+        .coupon-card.status-usado { opacity: 0.5; background-color: #0a0a0a; }
+        .coupon-card.status-regalado { background-color: #2b1200; border-color: var(--accent); }
+
+        .coupon-info strong {
+            display: inline-block;
+            width: 90px;
+            color: #aaa;
+        }
+        
+        .coupon-info p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .coupon-actions {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .export-checkbox {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+        }
+
+        /* Contenedor oculto para la exportación PNG */
+        #export-container-wrapper {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+        }
+
+        .export-render {
+            background: var(--bg-color);
+            padding: 20px;
+            width: 600px; /* Ancho fijo para el PNG */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            position: relative;
+            color: var(--text-color);
+        }
+
+        .export-coupon {
+            border: 2px dashed var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            background: var(--card-bg);
+            position: relative;
+            z-index: 2;
+        }
+
+        .export-coupon h3 {
+            margin: 0 0 10px 0;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .export-coupon p {
+            margin: 4px 0;
+            font-size: 16px;
+        }
+
+        /* Marca de agua CSS adaptada a fondo oscuro */
+        .watermark-overlay::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><text x='0' y='100' transform='rotate(-35 150 100)' font-size='22' fill='rgba(255,255,255,0.15)' font-family='sans-serif' font-weight='bold'>regalado por @danarc2310</text></svg>");
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        @media (max-width: 600px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎟️ Gestor de Cupones</h1>
+
+    <div class="panel">
+        <label for="csvInput" style="color: #ccc;"><strong>Pega aquí los datos de tus cupones:</strong></label>
+        <textarea id="csvInput" placeholder="Tienda,Descripción,Precio,Código,Vigencia..."></textarea>
+        <button onclick="importData()">Procesar / Importar</button>
+        <button onclick="clearData()" style="background-color: #d32f2f; float: right;">Borrar Todos</button>
+    </div>
+
+    <div class="panel">
+        <div class="controls">
+            <label>
+                <strong style="color: #ccc;">Ordenar:</strong>
+                <select id="sortOrder" onchange="renderCoupons()">
+                    <option value="asc">Tienda (A-Z)</option>
+                    <option value="desc">Tienda (Z-A)</option>
+                </select>
+            </label>
+
+            <label>
+                <strong style="color: #ccc;">Filtrar:</strong>
+                <select id="filterStatus" onchange="renderCoupons()">
+                    <option value="todos">Todos</option>
+                    <option value="sin usar">Sin usar</option>
+                    <option value="regalado">Regalados</option>
+                    <option value="usado">Usados</option>
+                </select>
+            </label>
+
+            <label style="display: flex; align-items: center; gap: 5px; color: #ccc;">
+                <input type="checkbox" id="watermarkToggle" checked>
+                <strong>Incluir Marca de Agua en PNG</strong>
+            </label>
+        </div>
+
+        <div class="controls">
+            <!-- Colores de marca en los botones de exportación -->
+            <button onclick="exportPNG('selected')" style="background-color: var(--accent); color: #fff;">Exportar Seleccionados (PNG)</button>
+            <button onclick="exportPNG('all')" style="background-color: var(--primary); color: #fff;">Exportar Todos (PNG)</button>
+        </div>
+    </div>
+
+    <div id="couponsContainer">
+        <!-- Los cupones se renderizarán aquí -->
+    </div>
+</div>
+
+<!-- Contenedor oculto para generar la imagen -->
+<div id="export-container-wrapper">
+    <div id="exportRender" class="export-render"></div>
+</div>
+
+<script>
+    let coupons = [];
+
+    // Cargar datos de localStorage al iniciar
+    window.onload = () => {
+        const stored = localStorage.getItem('misCupones');
+        if (stored) {
+            coupons = JSON.parse(stored);
+            renderCoupons();
+        }
+    };
+
+    function importData() {
+        const text = document.getElementById('csvInput').value.trim();
+        if (!text) return alert("Pega algunos datos primero.");
+
+        const lines = text.split('\n');
+        let addedCount = 0;
+
+        lines.forEach(line => {
+            const parts = line.split(',');
+            // Verificar que tenga 5 partes y no sea el encabezado
+            if (parts.length >= 5 && parts[0].trim().toLowerCase() !== 'tienda') {
+                const codigo = parts[3].trim();
+                // Evitar duplicados por código
+                if (!coupons.find(c => c.codigo === codigo)) {
+                    coupons.push({
+                        tienda: parts[0].trim(),
+                        descripcion: parts[1].trim(),
+                        precio: parts[2].trim(),
+                        codigo: codigo,
+                        vigencia: parts[4].trim(),
+                        status: 'sin usar', // Por defecto
+                        selected: false
+                    });
+                    addedCount++;
+                }
+            }
+        });
+
+        if (addedCount > 0) {
+            saveData();
+            renderCoupons();
+            document.getElementById('csvInput').value = '';
+            alert(`Se importaron ${addedCount} cupones nuevos.`);
+        } else {
+            alert("No se encontraron cupones nuevos válidos o el formato es incorrecto.");
+        }
+    }
+
+    function saveData() {
+        localStorage.setItem('misCupones', JSON.stringify(coupons));
+    }
+
+    function clearData() {
+        if (confirm("¿Estás seguro de borrar todos los cupones? Esto no se puede deshacer.")) {
+            coupons = [];
+            saveData();
+            renderCoupons();
+        }
+    }
+
+    function updateStatus(codigo, newStatus) {
+        const index = coupons.findIndex(c => c.codigo === codigo);
+        if (index !== -1) {
+            coupons[index].status = newStatus;
+            saveData();
+            renderCoupons();
+        }
+    }
+
+    function toggleSelect(codigo, isChecked) {
+        const index = coupons.findIndex(c => c.codigo === codigo);
+        if (index !== -1) {
+            coupons[index].selected = isChecked;
+            saveData();
+        }
+    }
+
+    function renderCoupons() {
+        const container = document.getElementById('couponsContainer');
+        container.innerHTML = '';
+
+        const sortOrder = document.getElementById('sortOrder').value;
+        const filterStatus = document.getElementById('filterStatus').value;
+
+        // Filtrar
+        let filtered = coupons.filter(c => filterStatus === 'todos' || c.status === filterStatus);
+
+        // Agrupar por tienda
+        let grouped = {};
+        filtered.forEach(c => {
+            if (!grouped[c.tienda]) grouped[c.tienda] = [];
+            grouped[c.tienda].push(c);
+        });
+
+        // Ordenar tiendas
+        let tiendas = Object.keys(grouped);
+        tiendas.sort((a, b) => {
+            return sortOrder === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
+        });
+
+        if (tiendas.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#aaa;">No hay cupones para mostrar.</p>';
+            return;
+        }
+
+        // Renderizar HTML
+        tiendas.forEach(tienda => {
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'store-group';
+            
+            groupDiv.innerHTML = `<h2 class="store-title">${tienda}</h2>`;
+            
+            const gridDiv = document.createElement('div');
+            gridDiv.className = 'coupon-grid';
+
+            grouped[tienda].forEach(c => {
+                const card = document.createElement('div');
+                card.className = `coupon-card status-${c.status.replace(' ', '')}`;
+                
+                card.innerHTML = `
+                    <div class="coupon-info">
+                        <p><strong>Descripción:</strong> ${c.descripcion}</p>
+                        <p><strong>Precio:</strong> ${c.precio}</p>
+                        <p><strong>Código:</strong> <span style="font-family:monospace; font-weight:bold; font-size:16px; color:var(--primary);">${c.codigo}</span></p>
+                        <p><strong>Vigencia:</strong> ${c.vigencia}</p>
+                    </div>
+                    <div class="coupon-actions">
+                        <label title="Seleccionar para exportar" style="display:flex; align-items:center; gap:5px; font-size: 14px; color: #ccc;">
+                            <input type="checkbox" class="export-checkbox" 
+                                ${c.selected ? 'checked' : ''} 
+                                onchange="toggleSelect('${c.codigo}', this.checked)">
+                            <span>Exportar</span>
+                        </label>
+                        <select onchange="updateStatus('${c.codigo}', this.value)">
+                            <option value="sin usar" ${c.status === 'sin usar' ? 'selected' : ''}>🟢 Sin usar</option>
+                            <option value="regalado" ${c.status === 'regalado' ? 'selected' : ''}>🟠 Regalado</option>
+                            <option value="usado" ${c.status === 'usado' ? 'selected' : ''}>🔴 Usado</option>
+                        </select>
+                    </div>
+                `;
+                gridDiv.appendChild(card);
+            });
+
+            groupDiv.appendChild(gridDiv);
+            container.appendChild(groupDiv);
+        });
+    }
+
+    async function exportPNG(mode) {
+        let toExport = [];
+        if (mode === 'selected') {
+            toExport = coupons.filter(c => c.selected);
+            if (toExport.length === 0) return alert("Selecciona al menos un cupón para exportar.");
+        } else {
+            toExport = coupons;
+            if (toExport.length === 0) return alert("No hay cupones para exportar.");
+        }
+
+        const renderArea = document.getElementById('exportRender');
+        renderArea.innerHTML = ''; // Limpiar
+        
+        // Aplicar o quitar clase de marca de agua
+        const wantWatermark = document.getElementById('watermarkToggle').checked;
+        if (wantWatermark) {
+            renderArea.classList.add('watermark-overlay');
+        } else {
+            renderArea.classList.remove('watermark-overlay');
+        }
+
+        // Construir el diseño visual para el PNG
+        toExport.forEach(c => {
+            const div = document.createElement('div');
+            div.className = 'export-coupon';
+            div.innerHTML = `
+                <h3>${c.tienda}</h3>
+                <p><strong style="color:#aaa;">Info:</strong> ${c.descripcion}</p>
+                <p><strong style="color:#aaa;">Precio:</strong> ${c.precio}</p>
+                <p><strong style="color:#aaa;">Vencimiento:</strong> ${c.vigencia}</p>
+                <p style="text-align:center; margin-top:15px; font-size:22px; font-weight:bold; font-family:monospace; background:#000; color:var(--primary); padding:10px; border:1px solid var(--border-color); border-radius:5px; letter-spacing:2px;">
+                    ${c.codigo}
+                </p>
+            `;
+            renderArea.appendChild(div);
+        });
+
+        // Esperar un momento para asegurar que el DOM se pintó (aunque esté fuera de pantalla)
+        await new Promise(r => setTimeout(r, 100));
+
+        // Convertir a canvas
+        try {
+            const canvas = await html2canvas(renderArea, {
+                scale: 2, // Mejor resolución
+                backgroundColor: "#000000" // Fondo negro en la imagen exportada
+            });
+            
+            // Descargar
+            const link = document.createElement('a');
+            link.download = `cupones_${new Date().getTime()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+
+        } catch (err) {
+            console.error("Error al exportar:", err);
+            alert("Hubo un error al generar la imagen.");
+        }
+    }
+</script>
+
+</body>
+</html>
