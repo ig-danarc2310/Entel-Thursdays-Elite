@@ -1,478 +1,787 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de Cupones</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        :root {
-            /* Colores adaptados de la marca */
-            --primary: #002EFF; /* Azul */
-            --accent: #FF4000;  /* Naranja */
-            --bg-color: #000000; /* Fondo Negro */
-            --text-color: #FFFFFF; /* Texto Blanco */
-            --card-bg: #111111; /* Tarjetas oscuras */
-            --border-color: #333333;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Dashboard Gestor de Cupones</title>
+  <style>
+    :root {
+      /* Modo Claro - Colores nítidos y limpios */
+      --bg: #f3f4f6;
+      --card-bg: #ffffff;
+      --text: #111827;
+      --text-muted: #6b7280;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --border: #e5e7eb;
+      --success-bg: #d1fae5;
+      --success-text: #065f46;
+      --warning-bg: #fef3c7;
+      --warning-text: #92400e;
+      --danger-bg: #fee2e2;
+      --danger-text: #991b1b;
+      --header-bg: #ffffff;
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+      --chip-bg: #f3f4f6;
+      --radius: 8px; /* Bordes menos redondeados para un look más estructurado */
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-        }
+    [data-theme="dark"] {
+      /* Modo Oscuro - Negro puro */
+      --bg: #000000;
+      --card-bg: #111111;
+      --text: #f9fafb;
+      --text-muted: #9ca3af;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --border: #222222;
+      --success-bg: #022c22;
+      --success-text: #6ee7b7;
+      --warning-bg: #451a03;
+      --warning-text: #fde047;
+      --danger-bg: #450a0a;
+      --danger-text: #fca5a5;
+      --header-bg: #0a0a0a;
+      --shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.02);
+      --chip-bg: #1f1f1f;
+    }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
 
-        h1 {
-            text-align: center;
-            color: var(--primary);
-        }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.2s, color 0.2s;
+    }
 
-        .panel {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(255,255,255,0.05);
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-        }
+    header {
+      background-color: var(--header-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
 
-        textarea {
-            width: 100%;
-            height: 120px;
-            padding: 10px;
-            background-color: #000;
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            resize: vertical;
-            box-sizing: border-box;
-            margin-bottom: 10px;
-            font-family: monospace;
-        }
+    .logo-area h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
 
-        textarea::placeholder {
-            color: #666;
-        }
+    .header-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
 
-        button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s;
-        }
+    main {
+      padding: 1rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+      flex: 1;
+    }
 
-        button:hover {
-            background-color: #001fba;
-        }
+    .card {
+      background-color: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: var(--shadow);
+    }
 
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            align-items: center;
-            margin-bottom: 20px;
-        }
+    textarea {
+      width: 100%;
+      min-height: 80px;
+      padding: 0.75rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: monospace;
+      font-size: 0.85rem;
+      resize: vertical;
+      margin-bottom: 0.75rem;
+    }
 
-        select, input[type="checkbox"] {
-            padding: 8px;
-            border-radius: 5px;
-            background-color: #000;
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-        }
+    textarea:focus, select:focus, input:focus {
+      outline: 1px solid var(--primary);
+    }
 
-        .store-group {
-            margin-bottom: 30px;
-        }
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      min-height: 36px; /* Más compacto, pero tocable */
+    }
 
-        .store-title {
-            border-bottom: 2px solid var(--accent);
-            padding-bottom: 5px;
-            margin-bottom: 15px;
-            color: var(--accent);
-            text-transform: uppercase;
-        }
+    .btn-primary { background-color: var(--primary); color: #ffffff; }
+    .btn-primary:hover { background-color: var(--primary-hover); }
+    .btn-danger { background-color: var(--danger-bg); color: var(--danger-text); border: 1px solid var(--danger-text); }
+    .btn-danger:hover { opacity: 0.85; }
+    .btn-secondary { background-color: var(--chip-bg); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background-color: var(--border); }
 
-        .coupon-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 15px;
-        }
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
 
-        .coupon-card {
-            background: var(--card-bg);
-            border: 1px dashed var(--border-color);
-            border-radius: 8px;
-            padding: 15px;
-            position: relative;
-            transition: 0.2s;
-        }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
 
-        .coupon-card:hover {
-            border-color: var(--primary);
-        }
+    .control-group label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
 
-        .coupon-card.status-usado { opacity: 0.5; background-color: #0a0a0a; }
-        .coupon-card.status-regalado { background-color: #2b1200; border-color: var(--accent); }
+    select, input[type="text"] {
+      padding: 0.4rem 0.6rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background-color: var(--bg);
+      color: var(--text);
+      font-size: 0.85rem;
+      min-height: 36px;
+      width: 100%;
+    }
 
-        .coupon-info strong {
-            display: inline-block;
-            width: 90px;
-            color: #aaa;
-        }
-        
-        .coupon-info p {
-            margin: 5px 0;
-            font-size: 14px;
-        }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-weight: 500;
+      min-height: 36px;
+    }
 
-        .coupon-actions {
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
 
-        .export-checkbox {
-            cursor: pointer;
-            width: 18px;
-            height: 18px;
-            accent-color: var(--accent);
-        }
+    .export-options-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
 
-        /* Contenedor oculto para la exportación PNG */
-        #export-container-wrapper {
-            position: absolute;
-            left: -9999px;
-            top: -9999px;
-        }
+    .store-group { margin-bottom: 1.5rem; }
 
-        .export-render {
-            background: var(--bg-color);
-            padding: 20px;
-            width: 600px; /* Ancho fijo para el PNG */
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            position: relative;
-            color: var(--text-color);
-        }
+    .store-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.25rem 0;
+      margin-bottom: 0.75rem;
+      border-bottom: 2px solid var(--primary);
+    }
 
-        .export-coupon {
-            border: 2px dashed var(--primary);
-            border-radius: 10px;
-            padding: 15px;
-            background: var(--card-bg);
-            position: relative;
-            z-index: 2;
-        }
+    .store-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
 
-        .export-coupon h3 {
-            margin: 0 0 10px 0;
-            color: var(--accent);
-            text-transform: uppercase;
-        }
+    .coupon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); /* Más compactas */
+      gap: 0.75rem;
+    }
 
-        .export-coupon p {
-            margin: 4px 0;
-            font-size: 16px;
-        }
+    .coupon-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.15s ease;
+      position: relative;
+    }
 
-        /* Marca de agua CSS adaptada a fondo oscuro */
-        .watermark-overlay::after {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><text x='0' y='100' transform='rotate(-35 150 100)' font-size='22' fill='rgba(255,255,255,0.15)' font-family='sans-serif' font-weight='bold'>regalado por @danarc2310</text></svg>");
-            pointer-events: none;
-            z-index: 10;
-        }
+    .coupon-card:hover { border-color: var(--primary); }
+    .coupon-card.selected { border-color: var(--primary); background-color: rgba(79, 70, 229, 0.08); }
 
-        @media (max-width: 600px) {
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-        }
-    </style>
+    .coupon-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .coupon-desc {
+      font-size: 0.9rem;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: 0.75rem;
+    }
+
+    .coupon-info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      font-size: 0.8rem;
+    }
+
+    .coupon-price {
+      background: var(--chip-bg);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .coupon-expiry { color: var(--text-muted); font-weight: 600; }
+
+    .coupon-code-box {
+      background-color: var(--bg);
+      border: 1px dashed var(--border);
+      padding: 0.5rem;
+      border-radius: 6px;
+      text-align: center;
+      font-family: monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 0.75rem;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .coupon-code-box:hover {
+      background-color: var(--primary);
+      color: white;
+      border-style: solid;
+    }
+
+    .coupon-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+      padding-top: 0.6rem;
+    }
+
+    .status-select {
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      width: auto;
+      font-size: 0.75rem;
+      padding: 0.3rem 0.5rem;
+      min-height: 28px;
+    }
+
+    .status-sin_usar { background-color: var(--success-bg); color: var(--success-text); }
+    .status-regalado { background-color: var(--warning-bg); color: var(--warning-text); }
+    .status-usado { background-color: var(--danger-bg); color: var(--danger-text); opacity: 0.7; }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111111;
+      border: 1px solid #333;
+      color: #ffffff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 1000;
+      animation: slideUp 0.2s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translate(-50%, 15px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    /* Ajustes Móviles */
+    @media (max-width: 768px) {
+      header {
+        padding: 0.75rem 1rem;
+      }
+      .export-options-bar { flex-direction: column; align-items: stretch; }
+      .export-options-bar .btn-group { display: flex; flex-direction: row; gap: 0.5rem; }
+      .export-options-bar .btn { flex: 1; padding: 0.5rem; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>🎟️ Gestor de Cupones</h1>
-
-    <div class="panel">
-        <label for="csvInput" style="color: #ccc;"><strong>Pega aquí los datos de tus cupones:</strong></label>
-        <textarea id="csvInput" placeholder="Tienda,Descripción,Precio,Código,Vigencia..."></textarea>
-        <button onclick="importData()">Procesar / Importar</button>
-        <button onclick="clearData()" style="background-color: #d32f2f; float: right;">Borrar Todos</button>
+  <header>
+    <div class="logo-area">
+      <h1>🎟️ Dashboard Cupones</h1>
     </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" id="theme-toggle" onclick="toggleTheme()">🌙 Oscuro</button>
+      <button class="btn btn-danger" onclick="confirmClearAll()">🗑️ Reset</button>
+    </div>
+  </header>
 
-    <div class="panel">
-        <div class="controls">
-            <label>
-                <strong style="color: #ccc;">Ordenar:</strong>
-                <select id="sortOrder" onchange="renderCoupons()">
-                    <option value="asc">Tienda (A-Z)</option>
-                    <option value="desc">Tienda (Z-A)</option>
-                </select>
-            </label>
+  <main>
+    <section class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <h2 style="font-size: 1rem;">📥 Importación</h2>
+        <button class="btn btn-secondary" style="min-height: 28px; padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="loadExampleData()">📄 Demo</button>
+      </div>
+      <textarea id="raw-input" placeholder="Tienda,Descripción,Precio,Código,Vigencia&#10;BEMBOS,1 Cheese regular + 1 Papa,S/5.90,66ADA87A84,13/8"></textarea>
+      <button class="btn btn-primary" style="width: 100%;" onclick="processInput()">⚡ Procesar Datos</button>
+    </section>
 
-            <label>
-                <strong style="color: #ccc;">Filtrar:</strong>
-                <select id="filterStatus" onchange="renderCoupons()">
-                    <option value="todos">Todos</option>
-                    <option value="sin usar">Sin usar</option>
-                    <option value="regalado">Regalados</option>
-                    <option value="usado">Usados</option>
-                </select>
-            </label>
+    <section class="card">
+      <div class="controls-grid">
+        <div class="control-group">
+          <label>🔍 Estado</label>
+          <select id="filter-status" onchange="renderCoupons()">
+            <option value="all">Todos los cupones</option>
+            <option value="sin_usar">Disponibles / Sin usar</option>
+            <option value="regalado">Regalados</option>
+            <option value="usado">Usados</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label>🏪 Tienda</label>
+          <select id="filter-store" onchange="renderCoupons()">
+            <option value="all">Todas las tiendas</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label>🔤 Orden</label>
+          <select id="sort-order" onchange="renderCoupons()">
+            <option value="asc">Ascendente (A ➔ Z)</option>
+            <option value="desc">Descendente (Z ➔ A)</option>
+          </select>
+        </div>
+      </div>
 
-            <label style="display: flex; align-items: center; gap: 5px; color: #ccc;">
-                <input type="checkbox" id="watermarkToggle" checked>
-                <strong>Incluir Marca de Agua en PNG</strong>
-            </label>
+      <div class="export-options-bar">
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <label class="checkbox-label">
+            <input type="checkbox" id="select-all-box" onchange="toggleSelectAll(this.checked)">
+            Selec. Todos (<span id="selected-count">0</span>)
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="watermark-box" checked>
+            🛡️ Marca @danarc2310
+          </label>
         </div>
 
-        <div class="controls">
-            <!-- Colores de marca en los botones de exportación -->
-            <button onclick="exportPNG('selected')" style="background-color: var(--accent); color: #fff;">Exportar Seleccionados (PNG)</button>
-            <button onclick="exportPNG('all')" style="background-color: var(--primary); color: #fff;">Exportar Todos (PNG)</button>
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="exportSelectedPNG()">🖼️ Exportar Selección</button>
+          <button class="btn btn-primary" onclick="exportAllPNG()">📸 Exportar Todos</button>
         </div>
-    </div>
+      </div>
+    </section>
 
-    <div id="couponsContainer">
-        <!-- Los cupones se renderizarán aquí -->
-    </div>
-</div>
+    <div id="coupons-container"></div>
+  </main>
 
-<!-- Contenedor oculto para generar la imagen -->
-<div id="export-container-wrapper">
-    <div id="exportRender" class="export-render"></div>
-</div>
+  <div id="toast" class="toast">Mensaje</div>
 
-<script>
+  <script>
+    const STORAGE_KEY = 'cupones_pro_data_v3';
+    const THEME_KEY = 'cupones_pro_theme_v3';
     let coupons = [];
 
-    // Cargar datos de localStorage al iniciar
-    window.onload = () => {
-        const stored = localStorage.getItem('misCupones');
-        if (stored) {
-            coupons = JSON.parse(stored);
-            renderCoupons();
-        }
-    };
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      loadFromStorage();
+      renderCoupons();
+    });
 
-    function importData() {
-        const text = document.getElementById('csvInput').value.trim();
-        if (!text) return alert("Pega algunos datos primero.");
-
-        const lines = text.split('\n');
-        let addedCount = 0;
-
-        lines.forEach(line => {
-            const parts = line.split(',');
-            // Verificar que tenga 5 partes y no sea el encabezado
-            if (parts.length >= 5 && parts[0].trim().toLowerCase() !== 'tienda') {
-                const codigo = parts[3].trim();
-                // Evitar duplicados por código
-                if (!coupons.find(c => c.codigo === codigo)) {
-                    coupons.push({
-                        tienda: parts[0].trim(),
-                        descripcion: parts[1].trim(),
-                        precio: parts[2].trim(),
-                        codigo: codigo,
-                        vigencia: parts[4].trim(),
-                        status: 'sin usar', // Por defecto
-                        selected: false
-                    });
-                    addedCount++;
-                }
-            }
-        });
-
-        if (addedCount > 0) {
-            saveData();
-            renderCoupons();
-            document.getElementById('csvInput').value = '';
-            alert(`Se importaron ${addedCount} cupones nuevos.`);
-        } else {
-            alert("No se encontraron cupones nuevos válidos o el formato es incorrecto.");
-        }
+    function initTheme() {
+      const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      document.getElementById('theme-toggle').innerHTML = savedTheme === 'dark' ? '☀️ Claro' : '🌙 Oscuro';
     }
 
-    function saveData() {
-        localStorage.setItem('misCupones', JSON.stringify(coupons));
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem(THEME_KEY, next);
+      document.getElementById('theme-toggle').innerHTML = next === 'dark' ? '☀️ Claro' : '🌙 Oscuro';
     }
 
-    function clearData() {
-        if (confirm("¿Estás seguro de borrar todos los cupones? Esto no se puede deshacer.")) {
-            coupons = [];
-            saveData();
-            renderCoupons();
-        }
+    function saveToStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(coupons));
+      updateStoreFilterOptions();
     }
 
-    function updateStatus(codigo, newStatus) {
-        const index = coupons.findIndex(c => c.codigo === codigo);
-        if (index !== -1) {
-            coupons[index].status = newStatus;
-            saveData();
-            renderCoupons();
-        }
+    function loadFromStorage() {
+      const data = localStorage.getItem(STORAGE_KEY);
+      if (data) {
+        try { coupons = JSON.parse(data); } catch (e) { coupons = []; }
+      }
+      updateStoreFilterOptions();
     }
 
-    function toggleSelect(codigo, isChecked) {
-        const index = coupons.findIndex(c => c.codigo === codigo);
-        if (index !== -1) {
-            coupons[index].selected = isChecked;
-            saveData();
+    function confirmClearAll() {
+      if (coupons.length === 0) return showToast('Nada que limpiar.');
+      if (confirm('¿Borrar todos los cupones para iniciar una nueva jornada?')) {
+        coupons = [];
+        saveToStorage();
+        renderCoupons();
+        showToast('🧹 Sistema reseteado.');
+      }
+    }
+
+    function processInput() {
+      const input = document.getElementById('raw-input').value.trim();
+      if (!input) return showToast('Pega texto primero.');
+
+      const lines = input.split(/\r?\n/);
+      let countAdded = 0;
+
+      lines.forEach(line => {
+        const cleanLine = line.trim();
+        if (!cleanLine || cleanLine.toLowerCase().includes('tienda')) return;
+
+        let parts = cleanLine.includes('\t') ? cleanLine.split('\t') : cleanLine.split(',');
+        parts = parts.map(p => p.trim());
+
+        if (parts.length >= 4) {
+          coupons.push({
+            id: 'cp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+            store: parts[0].toUpperCase(),
+            description: parts[1],
+            price: parts[2],
+            code: parts[3],
+            expiry: parts.slice(4).join(',') || 'N/A',
+            status: 'sin_usar',
+            selected: false
+          });
+          countAdded++;
         }
+      });
+
+      if (countAdded > 0) {
+        document.getElementById('raw-input').value = '';
+        saveToStorage();
+        renderCoupons();
+        showToast(`✅ ${countAdded} agregados.`);
+      }
+    }
+
+    function loadExampleData() {
+      document.getElementById('raw-input').value = `Tienda,Descripción,Precio,Código,Vigencia
+BEMBOS,1 Cheese regular + 1 Papa,S/5.90,66ADA87A84,13/8
+MERCADOLIBRE,Compra min S/69,20% dto,J8WMPA2T2,16/8
+LISTO,2 Four Loko 473ml,S/15.90,X9HPER,16/8`;
+    }
+
+    function updateStoreFilterOptions() {
+      const select = document.getElementById('filter-store');
+      const currentVal = select.value;
+      const stores = [...new Set(coupons.map(c => c.store))].sort();
+      
+      select.innerHTML = '<option value="all">Todas las tiendas</option>';
+      stores.forEach(st => {
+        const opt = document.createElement('option');
+        opt.value = st; opt.textContent = st;
+        if (st === currentVal) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+
+    function updateStatus(id, newStatus) {
+      const item = coupons.find(c => c.id === id);
+      if (item) { item.status = newStatus; saveToStorage(); renderCoupons(); }
+    }
+
+    function toggleSelectCoupon(id, checked) {
+      const item = coupons.find(c => c.id === id);
+      if (item) {
+        item.selected = checked;
+        document.getElementById(`card-${id}`).classList.toggle('selected', checked);
+        updateSelectedCounter();
+      }
+    }
+
+    function toggleSelectAll(checked) {
+      const statusF = document.getElementById('filter-status').value;
+      const storeF = document.getElementById('filter-store').value;
+      coupons.forEach(c => {
+        if ((statusF === 'all' || c.status === statusF) && (storeF === 'all' || c.store === storeF)) {
+          c.selected = checked;
+        }
+      });
+      renderCoupons();
+    }
+
+    function updateSelectedCounter() {
+      document.getElementById('selected-count').textContent = coupons.filter(c => c.selected).length;
+    }
+
+    function deleteCoupon(id) {
+      coupons = coupons.filter(c => c.id !== id);
+      saveToStorage(); renderCoupons();
     }
 
     function renderCoupons() {
-        const container = document.getElementById('couponsContainer');
-        container.innerHTML = '';
+      const container = document.getElementById('coupons-container');
+      const statusF = document.getElementById('filter-status').value;
+      const storeF = document.getElementById('filter-store').value;
+      const sortO = document.getElementById('sort-order').value;
 
-        const sortOrder = document.getElementById('sortOrder').value;
-        const filterStatus = document.getElementById('filterStatus').value;
+      let filtered = coupons.filter(c => 
+        (statusF === 'all' || c.status === statusF) && 
+        (storeF === 'all' || c.store === storeF)
+      );
 
-        // Filtrar
-        let filtered = coupons.filter(c => filterStatus === 'todos' || c.status === filterStatus);
+      updateSelectedCounter();
 
-        // Agrupar por tienda
-        let grouped = {};
-        filtered.forEach(c => {
-            if (!grouped[c.tienda]) grouped[c.tienda] = [];
-            grouped[c.tienda].push(c);
-        });
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="card" style="text-align:center; padding: 2rem; color: var(--text-muted); font-size: 0.9rem;">Sin resultados. Importa datos o ajusta los filtros.</div>`;
+        return;
+      }
 
-        // Ordenar tiendas
-        let tiendas = Object.keys(grouped);
-        tiendas.sort((a, b) => {
-            return sortOrder === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
-        });
+      const groups = filtered.reduce((acc, c) => {
+        acc[c.store] = acc[c.store] || [];
+        acc[c.store].push(c);
+        return acc;
+      }, {});
 
-        if (tiendas.length === 0) {
-            container.innerHTML = '<p style="text-align:center; color:#aaa;">No hay cupones para mostrar.</p>';
-            return;
-        }
+      const storeKeys = Object.keys(groups).sort((a, b) => sortO === 'asc' ? a.localeCompare(b) : b.localeCompare(a));
+      container.innerHTML = '';
 
-        // Renderizar HTML
-        tiendas.forEach(tienda => {
-            const groupDiv = document.createElement('div');
-            groupDiv.className = 'store-group';
-            
-            groupDiv.innerHTML = `<h2 class="store-title">${tienda}</h2>`;
-            
-            const gridDiv = document.createElement('div');
-            gridDiv.className = 'coupon-grid';
-
-            grouped[tienda].forEach(c => {
-                const card = document.createElement('div');
-                card.className = `coupon-card status-${c.status.replace(' ', '')}`;
-                
-                card.innerHTML = `
-                    <div class="coupon-info">
-                        <p><strong>Descripción:</strong> ${c.descripcion}</p>
-                        <p><strong>Precio:</strong> ${c.precio}</p>
-                        <p><strong>Código:</strong> <span style="font-family:monospace; font-weight:bold; font-size:16px; color:var(--primary);">${c.codigo}</span></p>
-                        <p><strong>Vigencia:</strong> ${c.vigencia}</p>
-                    </div>
-                    <div class="coupon-actions">
-                        <label title="Seleccionar para exportar" style="display:flex; align-items:center; gap:5px; font-size: 14px; color: #ccc;">
-                            <input type="checkbox" class="export-checkbox" 
-                                ${c.selected ? 'checked' : ''} 
-                                onchange="toggleSelect('${c.codigo}', this.checked)">
-                            <span>Exportar</span>
-                        </label>
-                        <select onchange="updateStatus('${c.codigo}', this.value)">
-                            <option value="sin usar" ${c.status === 'sin usar' ? 'selected' : ''}>🟢 Sin usar</option>
-                            <option value="regalado" ${c.status === 'regalado' ? 'selected' : ''}>🟠 Regalado</option>
-                            <option value="usado" ${c.status === 'usado' ? 'selected' : ''}>🔴 Usado</option>
-                        </select>
-                    </div>
-                `;
-                gridDiv.appendChild(card);
-            });
-
-            groupDiv.appendChild(gridDiv);
-            container.appendChild(groupDiv);
-        });
+      storeKeys.forEach(store => {
+        const groupEl = document.createElement('div');
+        groupEl.className = 'store-group';
+        groupEl.innerHTML = `
+          <div class="store-header">
+            <span class="store-title">${escapeHtml(store)}</span>
+            <span style="background:var(--chip-bg); padding:0.15rem 0.5rem; border-radius:12px; font-weight:700; font-size:0.75rem; border: 1px solid var(--border);">${groups[store].length}</span>
+          </div>
+          <div class="coupon-grid">
+            ${groups[store].map(c => `
+              <div class="coupon-card ${c.selected ? 'selected' : ''}" id="card-${c.id}">
+                <div>
+                  <div class="coupon-top">
+                    <label class="checkbox-label" style="font-weight:700;">
+                      <input type="checkbox" ${c.selected ? 'checked' : ''} onchange="toggleSelectCoupon('${c.id}', this.checked)"> Seleccionar
+                    </label>
+                    <button style="background:none; border:none; color:var(--danger-text); cursor:pointer; font-size:1.1rem; line-height: 1;" onclick="deleteCoupon('${c.id}')">✕</button>
+                  </div>
+                  <div class="coupon-desc">${escapeHtml(c.description)}</div>
+                  <div class="coupon-info-row">
+                    <span class="coupon-price">${escapeHtml(c.price)}</span>
+                    <span class="coupon-expiry">⏳ ${escapeHtml(c.expiry)}</span>
+                  </div>
+                  <div class="coupon-code-box" onclick="copyToClipboard('${c.code}')">${escapeHtml(c.code)}</div>
+                </div>
+                <div class="coupon-footer">
+                  <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">ESTADO</span>
+                  <select class="status-select status-${c.status}" onchange="updateStatus('${c.id}', this.value)">
+                    <option value="sin_usar" ${c.status === 'sin_usar' ? 'selected' : ''}>🟢 Sin usar</option>
+                    <option value="regalado" ${c.status === 'regalado' ? 'selected' : ''}>🟡 Regalado</option>
+                    <option value="usado" ${c.status === 'usado' ? 'selected' : ''}>🔴 Usado</option>
+                  </select>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        container.appendChild(groupEl);
+      });
     }
 
-    async function exportPNG(mode) {
-        let toExport = [];
-        if (mode === 'selected') {
-            toExport = coupons.filter(c => c.selected);
-            if (toExport.length === 0) return alert("Selecciona al menos un cupón para exportar.");
-        } else {
-            toExport = coupons;
-            if (toExport.length === 0) return alert("No hay cupones para exportar.");
-        }
-
-        const renderArea = document.getElementById('exportRender');
-        renderArea.innerHTML = ''; // Limpiar
-        
-        // Aplicar o quitar clase de marca de agua
-        const wantWatermark = document.getElementById('watermarkToggle').checked;
-        if (wantWatermark) {
-            renderArea.classList.add('watermark-overlay');
-        } else {
-            renderArea.classList.remove('watermark-overlay');
-        }
-
-        // Construir el diseño visual para el PNG
-        toExport.forEach(c => {
-            const div = document.createElement('div');
-            div.className = 'export-coupon';
-            div.innerHTML = `
-                <h3>${c.tienda}</h3>
-                <p><strong style="color:#aaa;">Info:</strong> ${c.descripcion}</p>
-                <p><strong style="color:#aaa;">Precio:</strong> ${c.precio}</p>
-                <p><strong style="color:#aaa;">Vencimiento:</strong> ${c.vigencia}</p>
-                <p style="text-align:center; margin-top:15px; font-size:22px; font-weight:bold; font-family:monospace; background:#000; color:var(--primary); padding:10px; border:1px solid var(--border-color); border-radius:5px; letter-spacing:2px;">
-                    ${c.codigo}
-                </p>
-            `;
-            renderArea.appendChild(div);
-        });
-
-        // Esperar un momento para asegurar que el DOM se pintó (aunque esté fuera de pantalla)
-        await new Promise(r => setTimeout(r, 100));
-
-        // Convertir a canvas
-        try {
-            const canvas = await html2canvas(renderArea, {
-                scale: 2, // Mejor resolución
-                backgroundColor: "#000000" // Fondo negro en la imagen exportada
-            });
-            
-            // Descargar
-            const link = document.createElement('a');
-            link.download = `cupones_${new Date().getTime()}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-
-        } catch (err) {
-            console.error("Error al exportar:", err);
-            alert("Hubo un error al generar la imagen.");
-        }
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => showToast(`📋 Copiado: ${text}`))
+        .catch(() => showToast(`Código: ${text}`));
     }
-</script>
 
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.style.display = 'block';
+      setTimeout(() => toast.style.display = 'none', 2000);
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;' })[m]);
+    }
+
+    // ==============================================
+    // GENERADOR NATIVO DE PNG (Fondo Negro Puro)
+    // ==============================================
+    function exportAllPNG() {
+      const filtered = coupons.filter(c => {
+        const statusF = document.getElementById('filter-status').value;
+        const storeF = document.getElementById('filter-store').value;
+        return (statusF === 'all' || c.status === statusF) && (storeF === 'all' || c.store === storeF);
+      });
+      if (filtered.length === 0) return showToast('No hay cupones para exportar.');
+      generateCouponSheetPNG(filtered, 'cupones_dashboard.png');
+    }
+
+    function exportSelectedPNG() {
+      const selected = coupons.filter(c => c.selected);
+      if (selected.length === 0) return showToast('Selecciona al menos un cupón.');
+      generateCouponSheetPNG(selected, 'cupones_seleccionados.png');
+    }
+
+    function generateCouponSheetPNG(items, filename) {
+      const withWatermark = document.getElementById('watermark-box').checked;
+      
+      const cardW = 380; const cardH = 210; const gap = 16; const padding = 30;
+      const cols = items.length === 1 ? 1 : (items.length <= 4 ? 2 : 3); 
+      const rows = Math.ceil(items.length / cols);
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      const headerHeight = 70;
+      canvas.width = (cols * cardW) + ((cols - 1) * gap) + (padding * 2);
+      canvas.height = headerHeight + (rows * cardH) + ((rows - 1) * gap) + (padding * 2);
+
+      // Fondo Negro Puro
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Header
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 22px system-ui, sans-serif';
+      ctx.fillText('🎟️ Cupones y Descuentos Exclusivos', padding, padding + 25);
+      ctx.fillStyle = '#9ca3af';
+      ctx.font = '14px system-ui, sans-serif';
+      ctx.fillText(`Generado: ${items.length} cupón(es) listos para canjear`, padding, padding + 48);
+
+      items.forEach((c, i) => {
+        const col = i % cols, row = Math.floor(i / cols);
+        const x = padding + col * (cardW + gap);
+        const y = padding + headerHeight + row * (cardH + gap);
+
+        // Card bg - Gris muy oscuro para contrastar con el fondo negro
+        drawRoundedRect(ctx, x, y, cardW, cardH, 12, '#111111', '#222222');
+
+        // Store Banner
+        ctx.fillStyle = '#4f46e5';
+        drawRoundedTop(ctx, x, y, cardW, 40, 12);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 16px system-ui, sans-serif';
+        ctx.fillText(c.store, x + 16, y + 26);
+
+        // Expiry
+        ctx.fillStyle = '#d1d5db';
+        ctx.font = 'bold 13px system-ui, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(`⏳ Vence: ${c.expiry}`, x + cardW - 16, y + 26);
+        ctx.textAlign = 'left';
+
+        // Description
+        ctx.fillStyle = '#f9fafb';
+        ctx.font = 'bold 15px system-ui, sans-serif';
+        wrapText(ctx, c.description, x + 16, y + 70, cardW - 32, 20);
+
+        // Price
+        ctx.fillStyle = '#38bdf8';
+        ctx.font = 'bold 14px system-ui, sans-serif';
+        ctx.fillText(`💰 Beneficio: ${c.price}`, x + 16, y + 125);
+
+        // Code Box (Fondo negro)
+        drawRoundedRect(ctx, x + 16, y + 140, cardW - 32, 50, 6, '#000000', '#4f46e5');
+        ctx.fillStyle = '#a5b4fc';
+        ctx.font = 'bold 20px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(c.code, x + cardW / 2, y + 172);
+        ctx.textAlign = 'left';
+      });
+
+      if (withWatermark) drawWatermark(ctx, canvas.width, canvas.height, 'regalado por @danarc2310');
+
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      showToast('🎉 PNG descargado con éxito.');
+    }
+
+    function drawRoundedRect(ctx, x, y, w, h, r, fill, stroke) {
+      ctx.beginPath();
+      ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+      ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+      ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+      ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y);
+      ctx.closePath();
+      if(fill) { ctx.fillStyle = fill; ctx.fill(); }
+      if(stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke(); }
+    }
+
+    function drawRoundedTop(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+      ctx.lineTo(x+w, y+h); ctx.lineTo(x, y+h); ctx.lineTo(x, y+r);
+      ctx.quadraticCurveTo(x, y, x+r, y); ctx.closePath(); ctx.fill();
+    }
+
+    function wrapText(ctx, text, x, y, maxW, lineH) {
+      const words = text.split(' ');
+      let line = '';
+      for (let n = 0; n < words.length; n++) {
+        let test = line + words[n] + ' ';
+        if (ctx.measureText(test).width > maxW && n > 0) {
+          ctx.fillText(line, x, y);
+          line = words[n] + ' '; y += lineH;
+        } else { line = test; }
+      }
+      ctx.fillText(line, x, y);
+    }
+
+    function drawWatermark(ctx, w, h, text) {
+      ctx.save();
+      ctx.font = 'bold 22px system-ui, sans-serif';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.05)'; /* Muy sutil para no manchar el negro */
+      ctx.rotate(-25 * Math.PI / 180);
+      for (let x = -w; x < w * 2; x += 300) {
+        for (let y = -h; y < h * 2; y += 120) {
+          ctx.fillText(text, x, y);
+        }
+      }
+      ctx.restore();
+    }
+  </script>
 </body>
 </html>
