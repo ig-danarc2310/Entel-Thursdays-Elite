@@ -1,787 +1,1276 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Dashboard Gestor de Cupones</title>
-  <style>
-    :root {
-      /* Modo Claro - Colores nítidos y limpios */
-      --bg: #f3f4f6;
-      --card-bg: #ffffff;
-      --text: #111827;
-      --text-muted: #6b7280;
-      --primary: #4f46e5;
-      --primary-hover: #4338ca;
-      --border: #e5e7eb;
-      --success-bg: #d1fae5;
-      --success-text: #065f46;
-      --warning-bg: #fef3c7;
-      --warning-text: #92400e;
-      --danger-bg: #fee2e2;
-      --danger-text: #991b1b;
-      --header-bg: #ffffff;
-      --shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-      --chip-bg: #f3f4f6;
-      --radius: 8px; /* Bordes menos redondeados para un look más estructurado */
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entel Thursdays Elite</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><rect x='2' y='7' width='20' height='14' rx='2'/><path d='M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16'/></svg>">
+    
+    <meta id="couponVault" data-state="[]">
 
-    [data-theme="dark"] {
-      /* Modo Oscuro - Negro puro */
-      --bg: #000000;
-      --card-bg: #111111;
-      --text: #f9fafb;
-      --text-muted: #9ca3af;
-      --primary: #4f46e5;
-      --primary-hover: #4338ca;
-      --border: #222222;
-      --success-bg: #022c22;
-      --success-text: #6ee7b7;
-      --warning-bg: #451a03;
-      --warning-text: #fde047;
-      --danger-bg: #450a0a;
-      --danger-text: #fca5a5;
-      --header-bg: #0a0a0a;
-      --shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.02);
-      --chip-bg: #1f1f1f;
-    }
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --text-dim: #666666;
+            --card-bg: #f8fafc;
+            --input-bg: #ffffff;
+            --border-color: #cbd5e1;
+            --primary-color: #0284c7;
+            --primary-hover: #0369a1;
+            --accent: #38bdf8;
+            --accent-bg: #e0f2fe;
+            --success-color: #059669;
+            --danger-color: #dc2626;
+            --danger-hover: #b91c1c;
+            --warning-color: #d97706;
+            --modal-bg: rgba(0, 0, 0, 0.6);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --code-bg: #f1f5f9;
+        }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
+        body.dark-mode {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --text-dim: #a1a1aa;
+            --card-bg: #000000;
+            --input-bg: #111111;
+            --border-color: #27272a;
+            --primary-color: #38bdf8;
+            --primary-hover: #0ea5e9;
+            --accent: #7dd3fc;
+            --accent-bg: rgba(56, 189, 248, 0.12);
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --danger-hover: #dc2626;
+            --warning-color: #f59e0b;
+            --modal-bg: rgba(0, 0, 0, 0.85);
+            --shadow: 0 4px 16px rgba(56, 189, 248, 0.12);
+            --code-bg: #18181b;
+        }
 
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      transition: background-color 0.2s, color 0.2s;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
 
-    header {
-      background-color: var(--header-bg);
-      border-bottom: 1px solid var(--border);
-      padding: 0.75rem 1.25rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: var(--shadow);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
+        html {
+            background-color: var(--bg-color);
+            min-height: 100%;
+        }
 
-    .logo-area h1 {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--primary);
-    }
+        body {
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px 16px;
+        }
 
-    .header-actions {
-      display: flex;
-      gap: 0.5rem;
-    }
+        #app-container {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin: 0 auto;
+        }
 
-    main {
-      padding: 1rem;
-      max-width: 1400px;
-      margin: 0 auto;
-      width: 100%;
-      flex: 1;
-    }
+        header {
+            text-align: center;
+            padding: 10px 0 15px 0;
+            border-bottom: 2px solid var(--primary-color);
+        }
 
-    .card {
-      background-color: var(--card-bg);
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      padding: 1rem;
-      margin-bottom: 1rem;
-      box-shadow: var(--shadow);
-    }
+        header h1 {
+            font-size: 26px;
+            cursor: pointer;
+            color: var(--text-color);
+            user-select: none;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
 
-    textarea {
-      width: 100%;
-      min-height: 80px;
-      padding: 0.75rem;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: monospace;
-      font-size: 0.85rem;
-      resize: vertical;
-      margin-bottom: 0.75rem;
-    }
+        header h1 span {
+            color: var(--primary-color);
+        }
 
-    textarea:focus, select:focus, input:focus {
-      outline: 1px solid var(--primary);
-    }
+        .subtitle {
+            font-size: 13px;
+            color: var(--text-dim);
+            margin-top: 6px;
+        }
 
-    .btn {
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4rem;
-      min-height: 36px; /* Más compacto, pero tocable */
-    }
+        .controls-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background-color: var(--card-bg);
+            padding: 16px 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
 
-    .btn-primary { background-color: var(--primary); color: #ffffff; }
-    .btn-primary:hover { background-color: var(--primary-hover); }
-    .btn-danger { background-color: var(--danger-bg); color: var(--danger-text); border: 1px solid var(--danger-text); }
-    .btn-danger:hover { opacity: 0.85; }
-    .btn-secondary { background-color: var(--chip-bg); color: var(--text); border: 1px solid var(--border); }
-    .btn-secondary:hover { background-color: var(--border); }
+        .top-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-    .controls-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 0.75rem;
-      margin-bottom: 0.75rem;
-    }
+        .action-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
 
-    .control-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
+        /* Barra de Herramientas de Seleccion Masiva */
+        .selection-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
 
-    .control-group label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-    }
+        .selection-label {
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-    select, input[type="text"] {
-      padding: 0.4rem 0.6rem;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background-color: var(--bg);
-      color: var(--text);
-      font-size: 0.85rem;
-      min-height: 36px;
-      width: 100%;
-    }
+        .select-filter {
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 12px;
+            cursor: pointer;
+        }
 
-    .checkbox-label {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-size: 0.85rem;
-      cursor: pointer;
-      font-weight: 500;
-      min-height: 36px;
-    }
+        .search-container {
+            display: flex;
+            width: 100%;
+        }
 
-    input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
-      accent-color: var(--primary);
-      cursor: pointer;
-    }
+        #search-input {
+            flex: 1;
+            padding: 11px 15px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border-radius: 6px;
+            font-size: 14px;
+        }
 
-    .export-options-bar {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.75rem;
-      padding-top: 0.75rem;
-      border-top: 1px solid var(--border);
-    }
+        #search-input:focus, textarea:focus, select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
 
-    .store-group { margin-bottom: 1.5rem; }
+        button {
+            padding: 9px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            user-select: none;
+        }
 
-    .store-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.25rem 0;
-      margin-bottom: 0.75rem;
-      border-bottom: 2px solid var(--primary);
-    }
+        button:active {
+            transform: scale(0.98);
+        }
 
-    .store-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--primary);
-    }
+        .btn-primary { background-color: var(--primary-color); color: #000000; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-secondary { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-color); }
+        .btn-secondary:hover { border-color: var(--primary-color); color: var(--primary-color); }
+        .btn-danger { background-color: var(--danger-color); color: #ffffff; }
+        .btn-danger:hover { background-color: var(--danger-hover); }
+        .btn-icon { padding: 6px; background: transparent; color: var(--text-color); border: none; cursor: pointer; border-radius: 4px; }
+        .btn-icon:hover { color: var(--primary-color); background: var(--input-bg); }
 
-    .coupon-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); /* Más compactas */
-      gap: 0.75rem;
-    }
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 11px;
+        }
 
-    .coupon-card {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 0.85rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      transition: all 0.15s ease;
-      position: relative;
-    }
+        #input-panel {
+            display: none;
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            flex-direction: column;
+            gap: 12px;
+        }
 
-    .coupon-card:hover { border-color: var(--primary); }
-    .coupon-card.selected { border-color: var(--primary); background-color: rgba(79, 70, 229, 0.08); }
+        textarea {
+            width: 100%;
+            height: 110px;
+            padding: 12px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-color);
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+            resize: vertical;
+        }
 
-    .coupon-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
+        /* Vista Tabla de Escritorio */
+        .desktop-table-container {
+            width: 100%;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            display: block;
+        }
 
-    .coupon-desc {
-      font-size: 0.9rem;
-      font-weight: 600;
-      line-height: 1.3;
-      margin-bottom: 0.75rem;
-    }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
 
-    .coupon-info-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.75rem;
-      font-size: 0.8rem;
-    }
+        th, td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
+            vertical-align: middle;
+            white-space: nowrap;
+        }
 
-    .coupon-price {
-      background: var(--chip-bg);
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
-      font-weight: 700;
-      color: var(--primary);
-    }
+        th {
+            background-color: var(--card-bg);
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
 
-    .coupon-expiry { color: var(--text-muted); font-weight: 600; }
+        td.desc-cell {
+            white-space: normal;
+            min-width: 240px;
+            font-size: 12px;
+            color: var(--text-dim);
+            line-height: 1.4;
+        }
 
-    .coupon-code-box {
-      background-color: var(--bg);
-      border: 1px dashed var(--border);
-      padding: 0.5rem;
-      border-radius: 6px;
-      text-align: center;
-      font-family: monospace;
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-      margin-bottom: 0.75rem;
-      cursor: pointer;
-      transition: background-color 0.2s, color 0.2s;
-    }
+        /* Vista Tarjetas Verticales para Dispositivos Moviles */
+        .mobile-cards-container {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
 
-    .coupon-code-box:hover {
-      background-color: var(--primary);
-      color: white;
-      border-style: solid;
-    }
+        .coupon-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: var(--shadow);
+        }
 
-    .coupon-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-top: 1px solid var(--border);
-      padding-top: 0.6rem;
-    }
+        .coupon-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
 
-    .status-select {
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      width: auto;
-      font-size: 0.75rem;
-      padding: 0.3rem 0.5rem;
-      min-height: 28px;
-    }
+        .coupon-card-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-    .status-sin_usar { background-color: var(--success-bg); color: var(--success-text); }
-    .status-regalado { background-color: var(--warning-bg); color: var(--warning-text); }
-    .status-usado { background-color: var(--danger-bg); color: var(--danger-text); opacity: 0.7; }
+        .coupon-card-store {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-transform: uppercase;
+        }
 
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #111111;
-      border: 1px solid #333;
-      color: #ffffff;
-      padding: 0.75rem 1.5rem;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-      display: none;
-      z-index: 1000;
-      animation: slideUp 0.2s ease;
-    }
+        .coupon-card-value {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 14px;
+        }
 
-    @keyframes slideUp {
-      from { opacity: 0; transform: translate(-50%, 15px); }
-      to { opacity: 1; transform: translate(-50%, 0); }
-    }
+        .coupon-card-desc {
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.4;
+        }
 
-    /* Ajustes Móviles */
-    @media (max-width: 768px) {
-      header {
-        padding: 0.75rem 1rem;
-      }
-      .export-options-bar { flex-direction: column; align-items: stretch; }
-      .export-options-bar .btn-group { display: flex; flex-direction: row; gap: 0.5rem; }
-      .export-options-bar .btn { flex: 1; padding: 0.5rem; }
-    }
-  </style>
+        .coupon-card-code-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .coupon-card-code {
+            font-family: 'Consolas', monospace;
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: var(--text-color);
+        }
+
+        .coupon-card-valid {
+            font-size: 11px;
+            color: var(--primary-color);
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .coupon-card-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            border-top: 1px solid var(--border-color);
+            padding-top: 10px;
+            gap: 8px;
+        }
+
+        .code-badge {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .code-badge:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        select.status-select {
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--modal-bg);
+            backdrop-filter: blur(3px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .modal-header h3 {
+            color: var(--primary-color);
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .modal-body {
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .config-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .config-menu button {
+            width: 100%;
+            justify-content: flex-start;
+            padding: 12px 16px;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--primary-color);
+            color: #000000;
+            padding: 10px 22px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 13px;
+            display: none;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            user-select: none;
+        }
+
+        #ticketCanvas {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 12px 8px; }
+            header h1 { font-size: 20px; }
+            .controls-wrapper { padding: 12px; }
+            .top-controls { flex-direction: column; align-items: stretch; }
+            .action-group { width: 100%; }
+            .action-group button { flex: 1; }
+            button { font-size: 12px; padding: 8px 12px; }
+
+            .selection-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .select-filter {
+                width: 100%;
+            }
+
+            .desktop-table-container {
+                display: none;
+            }
+
+            .mobile-cards-container {
+                display: flex;
+            }
+        }
+    </style>
 </head>
-<body>
+<body class="dark-mode">
 
-  <header>
-    <div class="logo-area">
-      <h1>🎟️ Dashboard Cupones</h1>
-    </div>
-    <div class="header-actions">
-      <button class="btn btn-secondary" id="theme-toggle" onclick="toggleTheme()">🌙 Oscuro</button>
-      <button class="btn btn-danger" onclick="confirmClearAll()">🗑️ Reset</button>
-    </div>
-  </header>
+    <div id="toast">Notificación</div>
 
-  <main>
-    <section class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-        <h2 style="font-size: 1rem;">📥 Importación</h2>
-        <button class="btn btn-secondary" style="min-height: 28px; padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="loadExampleData()">📄 Demo</button>
-      </div>
-      <textarea id="raw-input" placeholder="Tienda,Descripción,Precio,Código,Vigencia&#10;BEMBOS,1 Cheese regular + 1 Papa,S/5.90,66ADA87A84,13/8"></textarea>
-      <button class="btn btn-primary" style="width: 100%;" onclick="processInput()">⚡ Procesar Datos</button>
-    </section>
+    <div id="app-container">
+        <header>
+            <h1 id="main-title" title="Alternar tema">Entel Thursdays <span>Elite</span></h1>
+            <div class="subtitle">Gestor de Cupones y Generador de Tickets</div>
+        </header>
 
-    <section class="card">
-      <div class="controls-grid">
-        <div class="control-group">
-          <label>🔍 Estado</label>
-          <select id="filter-status" onchange="renderCoupons()">
-            <option value="all">Todos los cupones</option>
-            <option value="sin_usar">Disponibles / Sin usar</option>
-            <option value="regalado">Regalados</option>
-            <option value="usado">Usados</option>
-          </select>
-        </div>
-        <div class="control-group">
-          <label>🏪 Tienda</label>
-          <select id="filter-store" onchange="renderCoupons()">
-            <option value="all">Todas las tiendas</option>
-          </select>
-        </div>
-        <div class="control-group">
-          <label>🔤 Orden</label>
-          <select id="sort-order" onchange="renderCoupons()">
-            <option value="asc">Ascendente (A ➔ Z)</option>
-            <option value="desc">Descendente (Z ➔ A)</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="export-options-bar">
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-          <label class="checkbox-label">
-            <input type="checkbox" id="select-all-box" onchange="toggleSelectAll(this.checked)">
-            Selec. Todos (<span id="selected-count">0</span>)
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" id="watermark-box" checked>
-            🛡️ Marca @danarc2310
-          </label>
-        </div>
-
-        <div class="btn-group">
-          <button class="btn btn-secondary" onclick="exportSelectedPNG()">🖼️ Exportar Selección</button>
-          <button class="btn btn-primary" onclick="exportAllPNG()">📸 Exportar Todos</button>
-        </div>
-      </div>
-    </section>
-
-    <div id="coupons-container"></div>
-  </main>
-
-  <div id="toast" class="toast">Mensaje</div>
-
-  <script>
-    const STORAGE_KEY = 'cupones_pro_data_v3';
-    const THEME_KEY = 'cupones_pro_theme_v3';
-    let coupons = [];
-
-    document.addEventListener('DOMContentLoaded', () => {
-      initTheme();
-      loadFromStorage();
-      renderCoupons();
-    });
-
-    function initTheme() {
-      const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
-      document.documentElement.setAttribute('data-theme', savedTheme);
-      document.getElementById('theme-toggle').innerHTML = savedTheme === 'dark' ? '☀️ Claro' : '🌙 Oscuro';
-    }
-
-    function toggleTheme() {
-      const current = document.documentElement.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem(THEME_KEY, next);
-      document.getElementById('theme-toggle').innerHTML = next === 'dark' ? '☀️ Claro' : '🌙 Oscuro';
-    }
-
-    function saveToStorage() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(coupons));
-      updateStoreFilterOptions();
-    }
-
-    function loadFromStorage() {
-      const data = localStorage.getItem(STORAGE_KEY);
-      if (data) {
-        try { coupons = JSON.parse(data); } catch (e) { coupons = []; }
-      }
-      updateStoreFilterOptions();
-    }
-
-    function confirmClearAll() {
-      if (coupons.length === 0) return showToast('Nada que limpiar.');
-      if (confirm('¿Borrar todos los cupones para iniciar una nueva jornada?')) {
-        coupons = [];
-        saveToStorage();
-        renderCoupons();
-        showToast('🧹 Sistema reseteado.');
-      }
-    }
-
-    function processInput() {
-      const input = document.getElementById('raw-input').value.trim();
-      if (!input) return showToast('Pega texto primero.');
-
-      const lines = input.split(/\r?\n/);
-      let countAdded = 0;
-
-      lines.forEach(line => {
-        const cleanLine = line.trim();
-        if (!cleanLine || cleanLine.toLowerCase().includes('tienda')) return;
-
-        let parts = cleanLine.includes('\t') ? cleanLine.split('\t') : cleanLine.split(',');
-        parts = parts.map(p => p.trim());
-
-        if (parts.length >= 4) {
-          coupons.push({
-            id: 'cp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-            store: parts[0].toUpperCase(),
-            description: parts[1],
-            price: parts[2],
-            code: parts[3],
-            expiry: parts.slice(4).join(',') || 'N/A',
-            status: 'sin_usar',
-            selected: false
-          });
-          countAdded++;
-        }
-      });
-
-      if (countAdded > 0) {
-        document.getElementById('raw-input').value = '';
-        saveToStorage();
-        renderCoupons();
-        showToast(`✅ ${countAdded} agregados.`);
-      }
-    }
-
-    function loadExampleData() {
-      document.getElementById('raw-input').value = `Tienda,Descripción,Precio,Código,Vigencia
-BEMBOS,1 Cheese regular + 1 Papa,S/5.90,66ADA87A84,13/8
-MERCADOLIBRE,Compra min S/69,20% dto,J8WMPA2T2,16/8
-LISTO,2 Four Loko 473ml,S/15.90,X9HPER,16/8`;
-    }
-
-    function updateStoreFilterOptions() {
-      const select = document.getElementById('filter-store');
-      const currentVal = select.value;
-      const stores = [...new Set(coupons.map(c => c.store))].sort();
-      
-      select.innerHTML = '<option value="all">Todas las tiendas</option>';
-      stores.forEach(st => {
-        const opt = document.createElement('option');
-        opt.value = st; opt.textContent = st;
-        if (st === currentVal) opt.selected = true;
-        select.appendChild(opt);
-      });
-    }
-
-    function updateStatus(id, newStatus) {
-      const item = coupons.find(c => c.id === id);
-      if (item) { item.status = newStatus; saveToStorage(); renderCoupons(); }
-    }
-
-    function toggleSelectCoupon(id, checked) {
-      const item = coupons.find(c => c.id === id);
-      if (item) {
-        item.selected = checked;
-        document.getElementById(`card-${id}`).classList.toggle('selected', checked);
-        updateSelectedCounter();
-      }
-    }
-
-    function toggleSelectAll(checked) {
-      const statusF = document.getElementById('filter-status').value;
-      const storeF = document.getElementById('filter-store').value;
-      coupons.forEach(c => {
-        if ((statusF === 'all' || c.status === statusF) && (storeF === 'all' || c.store === storeF)) {
-          c.selected = checked;
-        }
-      });
-      renderCoupons();
-    }
-
-    function updateSelectedCounter() {
-      document.getElementById('selected-count').textContent = coupons.filter(c => c.selected).length;
-    }
-
-    function deleteCoupon(id) {
-      coupons = coupons.filter(c => c.id !== id);
-      saveToStorage(); renderCoupons();
-    }
-
-    function renderCoupons() {
-      const container = document.getElementById('coupons-container');
-      const statusF = document.getElementById('filter-status').value;
-      const storeF = document.getElementById('filter-store').value;
-      const sortO = document.getElementById('sort-order').value;
-
-      let filtered = coupons.filter(c => 
-        (statusF === 'all' || c.status === statusF) && 
-        (storeF === 'all' || c.store === storeF)
-      );
-
-      updateSelectedCounter();
-
-      if (filtered.length === 0) {
-        container.innerHTML = `<div class="card" style="text-align:center; padding: 2rem; color: var(--text-muted); font-size: 0.9rem;">Sin resultados. Importa datos o ajusta los filtros.</div>`;
-        return;
-      }
-
-      const groups = filtered.reduce((acc, c) => {
-        acc[c.store] = acc[c.store] || [];
-        acc[c.store].push(c);
-        return acc;
-      }, {});
-
-      const storeKeys = Object.keys(groups).sort((a, b) => sortO === 'asc' ? a.localeCompare(b) : b.localeCompare(a));
-      container.innerHTML = '';
-
-      storeKeys.forEach(store => {
-        const groupEl = document.createElement('div');
-        groupEl.className = 'store-group';
-        groupEl.innerHTML = `
-          <div class="store-header">
-            <span class="store-title">${escapeHtml(store)}</span>
-            <span style="background:var(--chip-bg); padding:0.15rem 0.5rem; border-radius:12px; font-weight:700; font-size:0.75rem; border: 1px solid var(--border);">${groups[store].length}</span>
-          </div>
-          <div class="coupon-grid">
-            ${groups[store].map(c => `
-              <div class="coupon-card ${c.selected ? 'selected' : ''}" id="card-${c.id}">
-                <div>
-                  <div class="coupon-top">
-                    <label class="checkbox-label" style="font-weight:700;">
-                      <input type="checkbox" ${c.selected ? 'checked' : ''} onchange="toggleSelectCoupon('${c.id}', this.checked)"> Seleccionar
-                    </label>
-                    <button style="background:none; border:none; color:var(--danger-text); cursor:pointer; font-size:1.1rem; line-height: 1;" onclick="deleteCoupon('${c.id}')">✕</button>
-                  </div>
-                  <div class="coupon-desc">${escapeHtml(c.description)}</div>
-                  <div class="coupon-info-row">
-                    <span class="coupon-price">${escapeHtml(c.price)}</span>
-                    <span class="coupon-expiry">⏳ ${escapeHtml(c.expiry)}</span>
-                  </div>
-                  <div class="coupon-code-box" onclick="copyToClipboard('${c.code}')">${escapeHtml(c.code)}</div>
+        <div class="controls-wrapper">
+            <div class="top-controls">
+                <div class="action-group">
+                    <button class="btn-primary" id="btn-toggle-input">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Capturar Datos
+                    </button>
+                    <button class="btn-secondary" id="btn-export-png">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        Exportar Selección (PNG)
+                    </button>
                 </div>
-                <div class="coupon-footer">
-                  <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">ESTADO</span>
-                  <select class="status-select status-${c.status}" onchange="updateStatus('${c.id}', this.value)">
-                    <option value="sin_usar" ${c.status === 'sin_usar' ? 'selected' : ''}>🟢 Sin usar</option>
-                    <option value="regalado" ${c.status === 'regalado' ? 'selected' : ''}>🟡 Regalado</option>
-                    <option value="usado" ${c.status === 'usado' ? 'selected' : ''}>🔴 Usado</option>
-                  </select>
+                <div class="action-group">
+                    <button class="btn-secondary" id="btn-open-config">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                        Configuración
+                    </button>
                 </div>
-              </div>
-            `).join('')}
-          </div>
-        `;
-        container.appendChild(groupEl);
-      });
-    }
+            </div>
 
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => showToast(`📋 Copiado: ${text}`))
-        .catch(() => showToast(`Código: ${text}`));
-    }
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Buscar por tienda, código o detalle...">
+            </div>
 
-    function showToast(msg) {
-      const toast = document.getElementById('toast');
-      toast.textContent = msg;
-      toast.style.display = 'block';
-      setTimeout(() => toast.style.display = 'none', 2000);
-    }
+            <!-- Panel de Seleccion Masiva y Selectiva -->
+            <div class="selection-bar">
+                <span class="selection-label">Selección:</span>
+                <button class="btn-secondary btn-small" id="btn-select-all">Marcar Todos</button>
+                <button class="btn-secondary btn-small" id="btn-deselect-all">Desmarcar</button>
 
-    function escapeHtml(str) {
-      return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;' })[m]);
-    }
+                <select class="select-filter" id="filter-store-select">
+                    <option value="">Por Tienda...</option>
+                </select>
 
-    // ==============================================
-    // GENERADOR NATIVO DE PNG (Fondo Negro Puro)
-    // ==============================================
-    function exportAllPNG() {
-      const filtered = coupons.filter(c => {
-        const statusF = document.getElementById('filter-status').value;
-        const storeF = document.getElementById('filter-store').value;
-        return (statusF === 'all' || c.status === statusF) && (storeF === 'all' || c.store === storeF);
-      });
-      if (filtered.length === 0) return showToast('No hay cupones para exportar.');
-      generateCouponSheetPNG(filtered, 'cupones_dashboard.png');
-    }
+                <select class="select-filter" id="filter-valid-select">
+                    <option value="">Por Vigencia...</option>
+                </select>
 
-    function exportSelectedPNG() {
-      const selected = coupons.filter(c => c.selected);
-      if (selected.length === 0) return showToast('Selecciona al menos un cupón.');
-      generateCouponSheetPNG(selected, 'cupones_seleccionados.png');
-    }
+                <select class="select-filter" id="filter-status-select">
+                    <option value="">Por ¿Usado?...</option>
+                    <option value="No">¿Usado?: No</option>
+                    <option value="Yes">¿Usado?: Sí</option>
+                    <option value="Given">¿Usado?: Regalado</option>
+                </select>
 
-    function generateCouponSheetPNG(items, filename) {
-      const withWatermark = document.getElementById('watermark-box').checked;
-      
-      const cardW = 380; const cardH = 210; const gap = 16; const padding = 30;
-      const cols = items.length === 1 ? 1 : (items.length <= 4 ? 2 : 3); 
-      const rows = Math.ceil(items.length / cols);
+                <span id="selected-counter" style="font-size: 12px; color: var(--text-dim); margin-left: auto;">0 seleccionados</span>
+            </div>
+        </div>
 
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
+        <div id="input-panel">
+            <label style="font-size: 12px; font-weight: bold; color: var(--text-dim); text-transform: uppercase;">Pega aquí los registros en texto o formato tabular:</label>
+            <textarea id="raw-input" placeholder="Tienda Descripción Valor Código Vigencia..."></textarea>
+            <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
+                <button class="btn-secondary" id="btn-cancel-input">Cancelar</button>
+                <button class="btn-primary" id="btn-process-input">Procesar e Incorporar</button>
+            </div>
+        </div>
 
-      const headerHeight = 70;
-      canvas.width = (cols * cardW) + ((cols - 1) * gap) + (padding * 2);
-      canvas.height = headerHeight + (rows * cardH) + ((rows - 1) * gap) + (padding * 2);
+        <!-- Tabla de Escritorio -->
+        <div class="desktop-table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 40px; text-align: center;">Sel.</th>
+                        <th>Tienda</th>
+                        <th>Descripción</th>
+                        <th>Valor</th>
+                        <th>Código</th>
+                        <th>Vigencia</th>
+                        <th>¿Usado?</th>
+                    </tr>
+                </thead>
+                <tbody id="coupon-tbody"></tbody>
+            </table>
+        </div>
 
-      // Fondo Negro Puro
-      ctx.fillStyle = '#000000';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+        <!-- Tarjetas Verticales para Moviles -->
+        <div class="mobile-cards-container" id="mobile-cards-container"></div>
+    </div>
 
-      // Header
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 22px system-ui, sans-serif';
-      ctx.fillText('🎟️ Cupones y Descuentos Exclusivos', padding, padding + 25);
-      ctx.fillStyle = '#9ca3af';
-      ctx.font = '14px system-ui, sans-serif';
-      ctx.fillText(`Generado: ${items.length} cupón(es) listos para canjear`, padding, padding + 48);
+    <!-- Modal de Configuracion -->
+    <div id="modal-config" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Configuración de Bóveda</h3>
+                <button class="btn-icon" id="btn-close-config">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="config-menu">
+                    <button class="btn-secondary" id="btn-export-json">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        Exportar Bóveda (JSON)
+                    </button>
+                    <button class="btn-secondary" onclick="document.getElementById('input-import-json').click()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Importar Bóveda (JSON)
+                    </button>
+                    <input type="file" id="input-import-json" accept=".json" style="display: none;">
 
-      items.forEach((c, i) => {
-        const col = i % cols, row = Math.floor(i / cols);
-        const x = padding + col * (cardW + gap);
-        const y = padding + headerHeight + row * (cardH + gap);
+                    <button class="btn-primary" id="btn-export-html">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                        Exportar Herramienta en HTML
+                    </button>
 
-        // Card bg - Gris muy oscuro para contrastar con el fondo negro
-        drawRoundedRect(ctx, x, y, cardW, cardH, 12, '#111111', '#222222');
+                    <button class="btn-danger" id="btn-open-clear">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        Limpiar Todos los Registros
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        // Store Banner
-        ctx.fillStyle = '#4f46e5';
-        drawRoundedTop(ctx, x, y, cardW, 40, 12);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 16px system-ui, sans-serif';
-        ctx.fillText(c.store, x + 16, y + 26);
+    <!-- Modal Confirmar Limpieza -->
+    <div id="modal-confirm-clear" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div class="modal-header" style="justify-content: center; border-bottom: none;">
+                <h3 style="color: var(--danger-color);">Confirmar Limpieza</h3>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 14px;">¿Confirma la eliminación permanente de todos los cupones registrados?</p>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                <button class="btn-secondary" id="btn-cancel-clear">Cancelar</button>
+                <button class="btn-danger" id="btn-confirm-clear">Borrar Todo</button>
+            </div>
+        </div>
+    </div>
 
-        // Expiry
-        ctx.fillStyle = '#d1d5db';
-        ctx.font = 'bold 13px system-ui, sans-serif';
-        ctx.textAlign = 'right';
-        ctx.fillText(`⏳ Vence: ${c.expiry}`, x + cardW - 16, y + 26);
-        ctx.textAlign = 'left';
+    <canvas id="ticketCanvas" width="450" height="500"></canvas>
 
-        // Description
-        ctx.fillStyle = '#f9fafb';
-        ctx.font = 'bold 15px system-ui, sans-serif';
-        wrapText(ctx, c.description, x + 16, y + 70, cardW - 32, 20);
+    <script>
+        const STORAGE_KEY = 'ENTEL_COUPON_VAULT_DATA';
+        const THEME_KEY = 'ENTEL_THEME_PREFERENCE';
 
-        // Price
-        ctx.fillStyle = '#38bdf8';
-        ctx.font = 'bold 14px system-ui, sans-serif';
-        ctx.fillText(`💰 Beneficio: ${c.price}`, x + 16, y + 125);
+        let couponData = [];
+        let selectedCouponIds = new Set();
 
-        // Code Box (Fondo negro)
-        drawRoundedRect(ctx, x + 16, y + 140, cardW - 32, 50, 6, '#000000', '#4f46e5');
-        ctx.fillStyle = '#a5b4fc';
-        ctx.font = 'bold 20px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText(c.code, x + cardW / 2, y + 172);
-        ctx.textAlign = 'left';
-      });
+        const mainTitle = document.getElementById('main-title');
+        const searchInput = document.getElementById('search-input');
+        const couponTbody = document.getElementById('coupon-tbody');
+        const mobileCardsContainer = document.getElementById('mobile-cards-container');
+        const btnToggleInput = document.getElementById('btn-toggle-input');
+        const inputPanel = document.getElementById('input-panel');
+        const btnCancelInput = document.getElementById('btn-cancel-input');
+        const btnProcessInput = document.getElementById('btn-process-input');
+        const rawInput = document.getElementById('raw-input');
+        const btnExportPng = document.getElementById('btn-export-png');
 
-      if (withWatermark) drawWatermark(ctx, canvas.width, canvas.height, 'regalado por @danarc2310');
+        // Selectores masivos
+        const btnSelectAll = document.getElementById('btn-select-all');
+        const btnDeselectAll = document.getElementById('btn-deselect-all');
+        const filterStoreSelect = document.getElementById('filter-store-select');
+        const filterValidSelect = document.getElementById('filter-valid-select');
+        const filterStatusSelect = document.getElementById('filter-status-select');
+        const selectedCounter = document.getElementById('selected-counter');
 
-      const link = document.createElement('a');
-      link.download = filename;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-      showToast('🎉 PNG descargado con éxito.');
-    }
+        const btnOpenConfig = document.getElementById('btn-open-config');
+        const modalConfig = document.getElementById('modal-config');
+        const btnCloseConfig = document.getElementById('btn-close-config');
+        const btnExportJson = document.getElementById('btn-export-json');
+        const inputImportJson = document.getElementById('input-import-json');
+        const btnExportHtml = document.getElementById('btn-export-html');
+        const btnOpenClear = document.getElementById('btn-open-clear');
+        const modalConfirmClear = document.getElementById('modal-confirm-clear');
+        const btnCancelClear = document.getElementById('btn-cancel-clear');
+        const btnConfirmClear = document.getElementById('btn-confirm-clear');
 
-    function drawRoundedRect(ctx, x, y, w, h, r, fill, stroke) {
-      ctx.beginPath();
-      ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
-      ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
-      ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r);
-      ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y);
-      ctx.closePath();
-      if(fill) { ctx.fillStyle = fill; ctx.fill(); }
-      if(stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke(); }
-    }
+        mainTitle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+        });
 
-    function drawRoundedTop(ctx, x, y, w, h, r) {
-      ctx.beginPath();
-      ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
-      ctx.lineTo(x+w, y+h); ctx.lineTo(x, y+h); ctx.lineTo(x, y+r);
-      ctx.quadraticCurveTo(x, y, x+r, y); ctx.closePath(); ctx.fill();
-    }
-
-    function wrapText(ctx, text, x, y, maxW, lineH) {
-      const words = text.split(' ');
-      let line = '';
-      for (let n = 0; n < words.length; n++) {
-        let test = line + words[n] + ' ';
-        if (ctx.measureText(test).width > maxW && n > 0) {
-          ctx.fillText(line, x, y);
-          line = words[n] + ' '; y += lineH;
-        } else { line = test; }
-      }
-      ctx.fillText(line, x, y);
-    }
-
-    function drawWatermark(ctx, w, h, text) {
-      ctx.save();
-      ctx.font = 'bold 22px system-ui, sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.05)'; /* Muy sutil para no manchar el negro */
-      ctx.rotate(-25 * Math.PI / 180);
-      for (let x = -w; x < w * 2; x += 300) {
-        for (let y = -h; y < h * 2; y += 120) {
-          ctx.fillText(text, x, y);
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 2200);
         }
-      }
-      ctx.restore();
-    }
-  </script>
+
+        btnToggleInput.addEventListener('click', () => {
+            const isVisible = inputPanel.style.display === 'flex';
+            inputPanel.style.display = isVisible ? 'none' : 'flex';
+            if (!isVisible) rawInput.focus();
+        });
+
+        btnCancelInput.addEventListener('click', () => {
+            rawInput.value = '';
+            inputPanel.style.display = 'none';
+        });
+
+        btnOpenConfig.addEventListener('click', () => { modalConfig.style.display = 'flex'; });
+        btnCloseConfig.addEventListener('click', () => { modalConfig.style.display = 'none'; });
+
+        btnOpenClear.addEventListener('click', () => {
+            if (couponData.length === 0) return;
+            modalConfig.style.display = 'none';
+            modalConfirmClear.style.display = 'flex';
+        });
+
+        btnCancelClear.addEventListener('click', () => {
+            modalConfirmClear.style.display = 'none';
+        });
+
+        btnConfirmClear.addEventListener('click', () => {
+            couponData = [];
+            selectedCouponIds.clear();
+            saveToStorage();
+            updateSelectionDropdowns();
+            renderViews();
+            modalConfirmClear.style.display = 'none';
+            showToast('Registros eliminados');
+        });
+
+        btnProcessInput.addEventListener('click', () => {
+            let input = rawInput.value.trim();
+            if (!input) {
+                showToast('Ingrese contenido para procesar');
+                return;
+            }
+
+            input = input.replace(/^TiendaDescripciónPrecioCódigoVigencia/i, '').trim();
+            if (input.toUpperCase().startsWith('TIENDA')) {
+                const firstNewLine = input.indexOf('\n');
+                if (firstNewLine !== -1) input = input.substring(firstNewLine + 1).trim();
+            }
+
+            const newItems = [];
+
+            if (input.includes('\t')) {
+                input.split('\n').forEach(line => {
+                    const cols = line.split('\t');
+                    if (cols.length >= 5) newItems.push(buildCoupon(cols));
+                });
+            } else if (input.includes(',')) {
+                input.split('\n').forEach(line => {
+                    const cols = line.split(',');
+                    if (cols.length >= 5) newItems.push(buildCoupon(cols));
+                });
+            } else {
+                const regex = /(.*?\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)/g;
+                let match;
+                while ((match = regex.exec(input)) !== null) {
+                    let record = match[1];
+
+                    let store = 'TIENDA';
+                    const storeMatch = record.match(/^(MERCADOLIBRE|PRIMAX|LISTO|CHINAWOK|NORKYS|BOMBA|[A-Z]{4,})/i);
+                    if (storeMatch) {
+                        store = storeMatch[1];
+                        record = record.substring(store.length);
+                    }
+
+                    let validDate = '17/05';
+                    const dateMatch = record.match(/(\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)$/);
+                    if (dateMatch) {
+                        validDate = dateMatch[1];
+                        record = record.substring(0, record.length - validDate.length);
+                    }
+
+                    let code = 'CODIGO';
+                    const codeMatch = record.match(/([A-Z0-9]{5,20})$/i);
+                    if (codeMatch) {
+                        code = codeMatch[1];
+                        record = record.substring(0, record.length - code.length);
+                    }
+
+                    let value = 'Valor';
+                    const valMatch = record.match(/(S\/\s*[\d.]+\s*(?:dto|dto x galón)?|50%\s*dto|S\/\s*\d+)$/i);
+                    if (valMatch) {
+                        value = valMatch[1];
+                        record = record.substring(0, record.length - value.length);
+                    }
+
+                    const desc = record.trim();
+                    newItems.push(buildCoupon([store, desc, value, code, validDate]));
+                }
+            }
+
+            if (newItems.length > 0) {
+                couponData = [...couponData, ...newItems];
+                saveToStorage();
+                updateSelectionDropdowns();
+                renderViews();
+                rawInput.value = '';
+                inputPanel.style.display = 'none';
+                showToast(`${newItems.length} cupones incorporados`);
+            } else {
+                alert('No se detectó una estructura válida. Verifique el formato del texto ingresado.');
+            }
+        });
+
+        function buildCoupon(cols) {
+            return {
+                id: 'c_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
+                store: cols[0] ? cols[0].trim() : '',
+                desc: cols[1] ? cols[1].trim() : '',
+                value: cols[2] ? cols[2].trim() : '',
+                code: cols[3] ? cols[3].trim() : '',
+                valid: cols[4] ? cols[4].trim() : '',
+                status: 'No'
+            };
+        }
+
+        // Sistema de Seleccion Masiva y Selectiva
+        function toggleCouponSelection(id, checked) {
+            if (checked) {
+                selectedCouponIds.add(id);
+            } else {
+                selectedCouponIds.delete(id);
+            }
+            syncSelectionUI();
+        }
+
+        function syncSelectionUI() {
+            document.querySelectorAll('.coupon-check').forEach(cb => {
+                cb.checked = selectedCouponIds.has(cb.dataset.id);
+            });
+            selectedCounter.textContent = `${selectedCouponIds.size} seleccionados`;
+        }
+
+        btnSelectAll.addEventListener('click', () => {
+            const currentList = getFilteredData();
+            currentList.forEach(item => selectedCouponIds.add(item.id));
+            syncSelectionUI();
+            showToast(`${selectedCouponIds.size} seleccionados`);
+        });
+
+        btnDeselectAll.addEventListener('click', () => {
+            selectedCouponIds.clear();
+            syncSelectionUI();
+            showToast('Selección desmarcada');
+        });
+
+        filterStoreSelect.addEventListener('change', () => {
+            const val = filterStoreSelect.value;
+            if (!val) return;
+            couponData.forEach(item => {
+                if (item.store.toUpperCase() === val.toUpperCase()) {
+                    selectedCouponIds.add(item.id);
+                }
+            });
+            syncSelectionUI();
+            showToast(`Cupones de ${val} marcados`);
+            filterStoreSelect.value = '';
+        });
+
+        filterValidSelect.addEventListener('change', () => {
+            const val = filterValidSelect.value;
+            if (!val) return;
+            couponData.forEach(item => {
+                if (item.valid === val) {
+                    selectedCouponIds.add(item.id);
+                }
+            });
+            syncSelectionUI();
+            showToast(`Cupones vigencia ${val} marcados`);
+            filterValidSelect.value = '';
+        });
+
+        filterStatusSelect.addEventListener('change', () => {
+            const val = filterStatusSelect.value;
+            if (!val) return;
+            couponData.forEach(item => {
+                if (item.status === val) {
+                    selectedCouponIds.add(item.id);
+                }
+            });
+            syncSelectionUI();
+            const labelMap = { 'No': 'No', 'Yes': 'Sí', 'Given': 'Regalado' };
+            showToast(`Cupones marcados como ${labelMap[val] || val}`);
+            filterStatusSelect.value = '';
+        });
+
+        function updateSelectionDropdowns() {
+            const currentStore = filterStoreSelect.value;
+            const currentValid = filterValidSelect.value;
+
+            const stores = Array.from(new Set(couponData.map(c => c.store.toUpperCase()))).filter(Boolean).sort();
+            const valids = Array.from(new Set(couponData.map(c => c.valid))).filter(Boolean).sort();
+
+            filterStoreSelect.innerHTML = '<option value="">Por Tienda...</option>';
+            stores.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = `Tienda: ${s}`;
+                filterStoreSelect.appendChild(opt);
+            });
+
+            filterValidSelect.innerHTML = '<option value="">Por Vigencia...</option>';
+            valids.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v;
+                opt.textContent = `Vigencia: ${v}`;
+                filterValidSelect.appendChild(opt);
+            });
+
+            filterStoreSelect.value = currentStore;
+            filterValidSelect.value = currentValid;
+        }
+
+        function renderViews() {
+            renderDesktopTable();
+            renderMobileCards();
+            syncSelectionUI();
+        }
+
+        function getFilteredData() {
+            const query = searchInput.value.toLowerCase().trim();
+            return couponData.filter(item => {
+                return item.store.toLowerCase().includes(query) ||
+                       item.desc.toLowerCase().includes(query) ||
+                       item.code.toLowerCase().includes(query) ||
+                       item.value.toLowerCase().includes(query) ||
+                       item.valid.toLowerCase().includes(query);
+            });
+        }
+
+        function renderDesktopTable() {
+            couponTbody.innerHTML = '';
+            const filtered = getFilteredData();
+
+            if (filtered.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td colspan="7" style="text-align: center; padding: 30px; color: var(--text-dim);">No se registran cupones en la vista actual.</td>';
+                couponTbody.appendChild(tr);
+                return;
+            }
+
+            filtered.forEach((item) => {
+                const originalIndex = couponData.findIndex(c => c.id === item.id);
+                const tr = document.createElement('tr');
+
+                const isChecked = selectedCouponIds.has(item.id) ? 'checked' : '';
+
+                tr.innerHTML = `
+                    <td style="text-align: center;">
+                        <input type="checkbox" class="coupon-check" data-id="${item.id}" ${isChecked} onchange="toggleCouponSelection('${item.id}', this.checked)" style="cursor: pointer; width: 16px; height: 16px;">
+                    </td>
+                    <td style="font-weight: bold; color: var(--text-color);">${escapeHtml(item.store)}</td>
+                    <td class="desc-cell">${escapeHtml(item.desc)}</td>
+                    <td><span style="color: var(--primary-color); font-weight: bold;">${escapeHtml(item.value)}</span></td>
+                    <td><span class="code-badge" onclick="copyValue('${escapeHtml(item.code)}')">${escapeHtml(item.code)}</span></td>
+                    <td>${escapeHtml(item.valid)}</td>
+                    <td>
+                        <select class="status-select" onchange="setStatus(${originalIndex}, this.value)">
+                            <option value="No" ${item.status === 'No' ? 'selected' : ''}>No</option>
+                            <option value="Yes" ${item.status === 'Yes' ? 'selected' : ''}>Sí</option>
+                            <option value="Given" ${item.status === 'Given' ? 'selected' : ''}>Regalado</option>
+                        </select>
+                    </td>
+                `;
+                couponTbody.appendChild(tr);
+            });
+        }
+
+        function renderMobileCards() {
+            mobileCardsContainer.innerHTML = '';
+            const filtered = getFilteredData();
+
+            if (filtered.length === 0) {
+                mobileCardsContainer.innerHTML = '<div style="text-align: center; padding: 30px; color: var(--text-dim); background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px;">No se registran cupones en la vista actual.</div>';
+                return;
+            }
+
+            filtered.forEach((item) => {
+                const originalIndex = couponData.findIndex(c => c.id === item.id);
+                const card = document.createElement('div');
+                card.className = 'coupon-card';
+
+                const isChecked = selectedCouponIds.has(item.id) ? 'checked' : '';
+
+                card.innerHTML = `
+                    <div class="coupon-card-header">
+                        <div class="coupon-card-header-left">
+                            <input type="checkbox" class="coupon-check" data-id="${item.id}" ${isChecked} onchange="toggleCouponSelection('${item.id}', this.checked)" style="cursor: pointer; width: 18px; height: 18px;">
+                            <span class="coupon-card-store">${escapeHtml(item.store)}</span>
+                        </div>
+                        <span class="coupon-card-value">${escapeHtml(item.value)}</span>
+                    </div>
+
+                    <div class="coupon-card-desc">${escapeHtml(item.desc)}</div>
+
+                    <div class="coupon-card-code-row" onclick="copyValue('${escapeHtml(item.code)}')">
+                        <span class="coupon-card-code">${escapeHtml(item.code)}</span>
+                        <span class="coupon-card-valid">Vigencia: ${escapeHtml(item.valid)}</span>
+                    </div>
+
+                    <div class="coupon-card-actions">
+                        <span style="font-size: 11px; color: var(--text-dim); font-weight: bold; margin-right: 8px;">¿USADO?:</span>
+                        <select class="status-select" onchange="setStatus(${originalIndex}, this.value)">
+                            <option value="No" ${item.status === 'No' ? 'selected' : ''}>No</option>
+                            <option value="Yes" ${item.status === 'Yes' ? 'selected' : ''}>Sí</option>
+                            <option value="Given" ${item.status === 'Given' ? 'selected' : ''}>Regalado</option>
+                        </select>
+                    </div>
+                `;
+                mobileCardsContainer.appendChild(card);
+            });
+        }
+
+        searchInput.addEventListener('input', renderViews);
+
+        function setStatus(index, status) {
+            if (couponData[index]) {
+                couponData[index].status = status;
+                saveToStorage();
+            }
+        }
+
+        function copyValue(val) {
+            navigator.clipboard.writeText(val).then(() => {
+                showToast('Código copiado: ' + val);
+            });
+        }
+
+        // Exportacion PNG con Marca de Agua Diagonal Repetida en Modo Claro y Oscuro
+        btnExportPng.addEventListener('click', () => {
+            const selectedItems = couponData.filter(c => selectedCouponIds.has(c.id));
+
+            if (selectedItems.length === 0) {
+                alert('Seleccione al menos un cupón mediante la casilla o los filtros superiores.');
+                return;
+            }
+
+            const canvas = document.getElementById('ticketCanvas');
+            const ctx = canvas.getContext('2d');
+            const isDark = document.body.classList.contains('dark-mode');
+
+            const width = 450;
+            const rowHeight = 120;
+            const padding = 16;
+            const totalHeight = (selectedItems.length * rowHeight) + (padding * 2);
+
+            canvas.width = width;
+            canvas.height = totalHeight;
+
+            // Paleta de colores sincronizada
+            const bgCanvas = isDark ? '#000000' : '#ffffff';
+            const cardBg = isDark ? '#09090b' : '#f8fafc';
+            const cardBorder = isDark ? '#27272a' : '#e2e8f0';
+            const textStore = isDark ? '#38bdf8' : '#0284c7';
+            const textDesc = isDark ? '#a1a1aa' : '#64748b';
+            const textCode = isDark ? '#ffffff' : '#000000';
+            const textValid = isDark ? '#38bdf8' : '#0284c7';
+            const codeBoxBg = isDark ? '#18181b' : '#e2e8f0';
+
+            // Fondo solido base
+            ctx.fillStyle = bgCanvas;
+            ctx.fillRect(0, 0, width, totalHeight);
+
+            // Renderizado de Cupones
+            selectedItems.forEach((c, i) => {
+                const cardX = padding;
+                const cardY = padding + (i * rowHeight);
+                const cardW = width - (padding * 2);
+                const cardH = rowHeight - 12;
+
+                // Contenedor tarjeta
+                ctx.fillStyle = cardBg;
+                ctx.fillRect(cardX, cardY, cardW, cardH);
+                ctx.strokeStyle = cardBorder;
+                ctx.lineWidth = 1;
+                ctx.strokeRect(cardX, cardY, cardW, cardH);
+
+                // Tienda y Valor
+                ctx.fillStyle = textStore;
+                ctx.font = 'bold 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(c.store.toUpperCase(), cardX + 14, cardY + 26);
+
+                if (c.value) {
+                    ctx.textAlign = 'right';
+                    ctx.font = 'bold 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                    ctx.fillText(c.value, cardX + cardW - 14, cardY + 26);
+                }
+
+                // Descripcion
+                ctx.fillStyle = textDesc;
+                ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'left';
+                let desc = c.desc;
+                if (desc.length > 52) desc = desc.substring(0, 49) + '...';
+                ctx.fillText(desc, cardX + 14, cardY + 48);
+
+                // Contenedor del Codigo
+                const codeBoxY = cardY + 60;
+                const codeBoxH = 34;
+                ctx.fillStyle = codeBoxBg;
+                ctx.fillRect(cardX + 12, codeBoxY, cardW - 24, codeBoxH);
+
+                // Codigo Monospace
+                ctx.fillStyle = textCode;
+                ctx.font = "bold 20px 'Consolas', 'Courier New', monospace";
+                ctx.textAlign = 'left';
+                ctx.fillText(c.code, cardX + 22, codeBoxY + 24);
+
+                // Fecha de Vigencia
+                ctx.fillStyle = textValid;
+                ctx.font = 'bold 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'right';
+                ctx.fillText('VENCE: ' + c.valid, cardX + cardW - 22, codeBoxY + 23);
+            });
+
+            // Marca de Agua Continua de Proteccion
+            ctx.save();
+            ctx.rotate(-28 * Math.PI / 180);
+            ctx.font = "bold 17px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+            ctx.fillStyle = isDark ? "rgba(255, 255, 255, 0.12)" : "rgba(0, 0, 0, 0.08)";
+            ctx.textAlign = "center";
+
+            const watermarkText = "regalado por @danarc2310";
+            const stepX = 260;
+            const stepY = 110;
+            const diagonalLimit = Math.sqrt(width * width + totalHeight * totalHeight);
+
+            for (let x = -diagonalLimit; x < diagonalLimit * 1.5; x += stepX) {
+                for (let y = -diagonalLimit; y < diagonalLimit * 1.5; y += stepY) {
+                    ctx.fillText(watermarkText, x, y);
+                }
+            }
+            ctx.restore();
+
+            // Descarga de archivo PNG
+            const link = document.createElement('a');
+            link.download = `Cupones_${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            showToast('Imagen PNG exportada con marca de agua');
+        });
+
+        function saveToStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(couponData));
+            updateVaultMeta();
+        }
+
+        function updateVaultMeta() {
+            const vault = document.getElementById('couponVault');
+            vault.setAttribute('data-state', encodeURIComponent(JSON.stringify(couponData)));
+        }
+
+        btnExportJson.addEventListener('click', () => {
+            if (couponData.length === 0) {
+                alert('No hay cupones para exportar.');
+                return;
+            }
+            const blob = new Blob([JSON.stringify(couponData, null, 2)], { type: 'application/json' });
+            downloadFile(blob, 'Entel_Coupons_Backup.json');
+            modalConfig.style.display = 'none';
+        });
+
+        inputImportJson.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                try {
+                    const parsed = JSON.parse(evt.target.result);
+                    if (Array.isArray(parsed)) {
+                        couponData = parsed;
+                        selectedCouponIds.clear();
+                        saveToStorage();
+                        updateSelectionDropdowns();
+                        renderViews();
+                        showToast(`${couponData.length} registros cargados`);
+                    } else {
+                        alert('Estructura JSON inválida.');
+                    }
+                } catch (err) {
+                    alert('Error en la lectura del archivo JSON.');
+                }
+                inputImportJson.value = '';
+                modalConfig.style.display = 'none';
+            };
+            reader.readAsText(file);
+        });
+
+        btnExportHtml.addEventListener('click', () => {
+            updateVaultMeta();
+            const clone = document.documentElement.cloneNode(true);
+
+            clone.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+            const panel = clone.querySelector('#input-panel');
+            if (panel) panel.style.display = 'none';
+
+            const rawIn = clone.querySelector('#raw-input');
+            if (rawIn) rawIn.value = '';
+
+            const searchIn = clone.querySelector('#search-input');
+            if (searchIn) searchIn.value = '';
+
+            const tbodyClone = clone.querySelector('#coupon-tbody');
+            if (tbodyClone) tbodyClone.innerHTML = '';
+
+            const mobileCardsClone = clone.querySelector('#mobile-cards-container');
+            if (mobileCardsClone) mobileCardsClone.innerHTML = '';
+
+            const htmlContent = '<!DOCTYPE html>\n' + clone.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8;' });
+            const d = new Date();
+            const dateStr = `${d.getFullYear()}${(d.getMonth() + 1).toString().padStart(2, '0')}${d.getDate().toString().padStart(2, '0')}`;
+            downloadFile(blob, `Entel_Thursdays_Elite_${dateStr}.html`);
+            modalConfig.style.display = 'none';
+        });
+
+        function downloadFile(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function init() {
+            const savedTheme = localStorage.getItem(THEME_KEY);
+            if (savedTheme === 'light') {
+                document.body.classList.remove('dark-mode');
+            }
+
+            const localData = localStorage.getItem(STORAGE_KEY);
+            const vault = document.getElementById('couponVault');
+            const vaultData = vault ? vault.getAttribute('data-state') : null;
+
+            if (localData) {
+                try {
+                    couponData = JSON.parse(localData);
+                } catch (e) {
+                    couponData = [];
+                }
+            } else if (vaultData && vaultData.trim() !== '' && vaultData !== '[]') {
+                try {
+                    couponData = JSON.parse(decodeURIComponent(vaultData));
+                    saveToStorage();
+                } catch (e) {
+                    couponData = [];
+                }
+            }
+
+            updateSelectionDropdowns();
+            renderViews();
+        }
+
+        window.onload = init;
+    </script>
 </body>
 </html>
