@@ -1,1 +1,1 @@
-# Gestor-de-Cupones-Entel
+Entel Thursdays Elite
