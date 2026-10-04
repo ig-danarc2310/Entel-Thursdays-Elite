@@ -133,34 +133,6 @@
             align-items: center;
         }
 
-        /* Barra de Herramientas de Seleccion Masiva */
-        .selection-bar {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            align-items: center;
-            padding-top: 12px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .selection-label {
-            font-size: 12px;
-            font-weight: bold;
-            color: var(--primary-color);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .select-filter {
-            background-color: var(--input-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 6px 10px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
         .search-container {
             display: flex;
             width: 100%;
@@ -394,6 +366,7 @@
             cursor: pointer;
         }
 
+        /* Estructura Modal Estandar */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -440,6 +413,9 @@
         .modal-body {
             overflow-y: auto;
             flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
         .config-menu {
@@ -452,6 +428,56 @@
             width: 100%;
             justify-content: flex-start;
             padding: 12px 16px;
+        }
+
+        /* Componentes del Centro de Seleccion y Exportacion */
+        .modal-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .modal-section-title {
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .modal-grid-filters {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .select-filter-modal {
+            width: 100%;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 9px 12px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .modal-selection-status {
+            padding: 10px 14px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .btn-full {
+            width: 100%;
+            padding: 12px;
+            font-size: 13px;
         }
 
         #toast {
@@ -484,13 +510,8 @@
             .action-group button { flex: 1; }
             button { font-size: 12px; padding: 8px 12px; }
 
-            .selection-bar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .select-filter {
-                width: 100%;
+            .modal-grid-filters {
+                grid-template-columns: 1fr;
             }
 
             .desktop-table-container {
@@ -520,9 +541,9 @@
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                         Capturar Datos
                     </button>
-                    <button class="btn-secondary" id="btn-export-png">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                        Exportar Selección (PNG)
+                    <button class="btn-secondary" id="btn-open-export-modal">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 17 12 21 16 17"></polyline><line x1="12" y1="12" x2="12" y2="21"></line><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"></path></svg>
+                        Exportar Selección
                     </button>
                 </div>
                 <div class="action-group">
@@ -535,30 +556,6 @@
 
             <div class="search-container">
                 <input type="text" id="search-input" placeholder="Buscar por tienda, código o detalle...">
-            </div>
-
-            <!-- Panel de Seleccion Masiva y Selectiva -->
-            <div class="selection-bar">
-                <span class="selection-label">Selección:</span>
-                <button class="btn-secondary btn-small" id="btn-select-all">Marcar Todos</button>
-                <button class="btn-secondary btn-small" id="btn-deselect-all">Desmarcar</button>
-
-                <select class="select-filter" id="filter-store-select">
-                    <option value="">Por Tienda...</option>
-                </select>
-
-                <select class="select-filter" id="filter-valid-select">
-                    <option value="">Por Vigencia...</option>
-                </select>
-
-                <select class="select-filter" id="filter-status-select">
-                    <option value="">Por ¿Usado?...</option>
-                    <option value="No">¿Usado?: No</option>
-                    <option value="Yes">¿Usado?: Sí</option>
-                    <option value="Given">¿Usado?: Regalado</option>
-                </select>
-
-                <span id="selected-counter" style="font-size: 12px; color: var(--text-dim); margin-left: auto;">0 seleccionados</span>
             </div>
         </div>
 
@@ -591,6 +588,66 @@
 
         <!-- Tarjetas Verticales para Moviles -->
         <div class="mobile-cards-container" id="mobile-cards-container"></div>
+    </div>
+
+    <!-- Modal de Seleccion y Exportacion (PNG y Texto) -->
+    <div id="modal-export" class="modal-overlay">
+        <div class="modal-content" style="max-width: 540px;">
+            <div class="modal-header">
+                <h3>Centro de Exportación</h3>
+                <button class="btn-icon" id="btn-close-export">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-selection-status">
+                    <span style="color: var(--text-dim);">Cupones activos para exportar:</span>
+                    <span id="modal-selected-count" style="color: var(--primary-color);">0</span>
+                </div>
+
+                <div class="modal-section">
+                    <span class="modal-section-title">Modo de Marcado Rápido:</span>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-secondary btn-full" id="btn-modal-select-all">Marcar Todos</button>
+                        <button class="btn-secondary btn-full" id="btn-modal-deselect-all">Desmarcar</button>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <span class="modal-section-title">Marcar por Grupos:</span>
+                    <div class="modal-grid-filters">
+                        <select class="select-filter-modal" id="modal-filter-store">
+                            <option value="">Por Tienda...</option>
+                        </select>
+                        <select class="select-filter-modal" id="modal-filter-valid">
+                            <option value="">Por Vigencia...</option>
+                        </select>
+                    </div>
+                    <select class="select-filter-modal" id="modal-filter-status">
+                        <option value="">Por ¿Usado?...</option>
+                        <option value="No">¿Usado?: No</option>
+                        <option value="Yes">¿Usado?: Sí</option>
+                        <option value="Given">¿Usado?: Regalado</option>
+                    </select>
+                </div>
+
+                <div class="modal-section" style="border-top: 1px solid var(--border-color); padding-top: 14px;">
+                    <span class="modal-section-title">Formatos de Salida:</span>
+                    <button class="btn-primary btn-full" id="btn-modal-export-png">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        Descargar Imagen PNG Protegida
+                    </button>
+                    <button class="btn-secondary btn-full" id="btn-modal-copy-full-text">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                        Copiar Texto Completo (Con Códigos)
+                    </button>
+                    <button class="btn-secondary btn-full" id="btn-modal-copy-info-text">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                        Copiar Lista Informativa (Sin Códigos)
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Modal de Configuracion -->
@@ -662,16 +719,22 @@
         const btnCancelInput = document.getElementById('btn-cancel-input');
         const btnProcessInput = document.getElementById('btn-process-input');
         const rawInput = document.getElementById('raw-input');
-        const btnExportPng = document.getElementById('btn-export-png');
 
-        // Selectores masivos
-        const btnSelectAll = document.getElementById('btn-select-all');
-        const btnDeselectAll = document.getElementById('btn-deselect-all');
-        const filterStoreSelect = document.getElementById('filter-store-select');
-        const filterValidSelect = document.getElementById('filter-valid-select');
-        const filterStatusSelect = document.getElementById('filter-status-select');
-        const selectedCounter = document.getElementById('selected-counter');
+        // Modal de Exportacion
+        const btnOpenExportModal = document.getElementById('btn-open-export-modal');
+        const modalExport = document.getElementById('modal-export');
+        const btnCloseExport = document.getElementById('btn-close-export');
+        const modalSelectedCount = document.getElementById('modal-selected-count');
+        const btnModalSelectAll = document.getElementById('btn-modal-select-all');
+        const btnModalDeselectAll = document.getElementById('btn-modal-deselect-all');
+        const modalFilterStore = document.getElementById('modal-filter-store');
+        const modalFilterValid = document.getElementById('modal-filter-valid');
+        const modalFilterStatus = document.getElementById('modal-filter-status');
+        const btnModalExportPng = document.getElementById('btn-modal-export-png');
+        const btnModalCopyFullText = document.getElementById('btn-modal-copy-full-text');
+        const btnModalCopyInfoText = document.getElementById('btn-modal-copy-info-text');
 
+        // Modal Configuracion
         const btnOpenConfig = document.getElementById('btn-open-config');
         const modalConfig = document.getElementById('modal-config');
         const btnCloseConfig = document.getElementById('btn-close-config');
@@ -707,6 +770,17 @@
             inputPanel.style.display = 'none';
         });
 
+        // Apertura y Gestion del Modal de Exportacion
+        btnOpenExportModal.addEventListener('click', () => {
+            updateModalDropdowns();
+            modalSelectedCount.textContent = selectedCouponIds.size;
+            modalExport.style.display = 'flex';
+        });
+
+        btnCloseExport.addEventListener('click', () => {
+            modalExport.style.display = 'none';
+        });
+
         btnOpenConfig.addEventListener('click', () => { modalConfig.style.display = 'flex'; });
         btnCloseConfig.addEventListener('click', () => { modalConfig.style.display = 'none'; });
 
@@ -724,7 +798,7 @@
             couponData = [];
             selectedCouponIds.clear();
             saveToStorage();
-            updateSelectionDropdowns();
+            updateModalDropdowns();
             renderViews();
             modalConfirmClear.style.display = 'none';
             showToast('Registros eliminados');
@@ -797,7 +871,7 @@
             if (newItems.length > 0) {
                 couponData = [...couponData, ...newItems];
                 saveToStorage();
-                updateSelectionDropdowns();
+                updateModalDropdowns();
                 renderViews();
                 rawInput.value = '';
                 inputPanel.style.display = 'none';
@@ -819,7 +893,6 @@
             };
         }
 
-        // Sistema de Seleccion Masiva y Selectiva
         function toggleCouponSelection(id, checked) {
             if (checked) {
                 selectedCouponIds.add(id);
@@ -833,24 +906,25 @@
             document.querySelectorAll('.coupon-check').forEach(cb => {
                 cb.checked = selectedCouponIds.has(cb.dataset.id);
             });
-            selectedCounter.textContent = `${selectedCouponIds.size} seleccionados`;
+            modalSelectedCount.textContent = selectedCouponIds.size;
         }
 
-        btnSelectAll.addEventListener('click', () => {
+        // Acciones de Seleccion Masiva en Modal
+        btnModalSelectAll.addEventListener('click', () => {
             const currentList = getFilteredData();
             currentList.forEach(item => selectedCouponIds.add(item.id));
             syncSelectionUI();
             showToast(`${selectedCouponIds.size} seleccionados`);
         });
 
-        btnDeselectAll.addEventListener('click', () => {
+        btnModalDeselectAll.addEventListener('click', () => {
             selectedCouponIds.clear();
             syncSelectionUI();
             showToast('Selección desmarcada');
         });
 
-        filterStoreSelect.addEventListener('change', () => {
-            const val = filterStoreSelect.value;
+        modalFilterStore.addEventListener('change', () => {
+            const val = modalFilterStore.value;
             if (!val) return;
             couponData.forEach(item => {
                 if (item.store.toUpperCase() === val.toUpperCase()) {
@@ -859,11 +933,11 @@
             });
             syncSelectionUI();
             showToast(`Cupones de ${val} marcados`);
-            filterStoreSelect.value = '';
+            modalFilterStore.value = '';
         });
 
-        filterValidSelect.addEventListener('change', () => {
-            const val = filterValidSelect.value;
+        modalFilterValid.addEventListener('change', () => {
+            const val = modalFilterValid.value;
             if (!val) return;
             couponData.forEach(item => {
                 if (item.valid === val) {
@@ -872,11 +946,11 @@
             });
             syncSelectionUI();
             showToast(`Cupones vigencia ${val} marcados`);
-            filterValidSelect.value = '';
+            modalFilterValid.value = '';
         });
 
-        filterStatusSelect.addEventListener('change', () => {
-            const val = filterStatusSelect.value;
+        modalFilterStatus.addEventListener('change', () => {
+            const val = modalFilterStatus.value;
             if (!val) return;
             couponData.forEach(item => {
                 if (item.status === val) {
@@ -886,34 +960,28 @@
             syncSelectionUI();
             const labelMap = { 'No': 'No', 'Yes': 'Sí', 'Given': 'Regalado' };
             showToast(`Cupones marcados como ${labelMap[val] || val}`);
-            filterStatusSelect.value = '';
+            modalFilterStatus.value = '';
         });
 
-        function updateSelectionDropdowns() {
-            const currentStore = filterStoreSelect.value;
-            const currentValid = filterValidSelect.value;
-
+        function updateModalDropdowns() {
             const stores = Array.from(new Set(couponData.map(c => c.store.toUpperCase()))).filter(Boolean).sort();
             const valids = Array.from(new Set(couponData.map(c => c.valid))).filter(Boolean).sort();
 
-            filterStoreSelect.innerHTML = '<option value="">Por Tienda...</option>';
+            modalFilterStore.innerHTML = '<option value="">Por Tienda...</option>';
             stores.forEach(s => {
                 const opt = document.createElement('option');
                 opt.value = s;
                 opt.textContent = `Tienda: ${s}`;
-                filterStoreSelect.appendChild(opt);
+                modalFilterStore.appendChild(opt);
             });
 
-            filterValidSelect.innerHTML = '<option value="">Por Vigencia...</option>';
+            modalFilterValid.innerHTML = '<option value="">Por Vigencia...</option>';
             valids.forEach(v => {
                 const opt = document.createElement('option');
                 opt.value = v;
                 opt.textContent = `Vigencia: ${v}`;
-                filterValidSelect.appendChild(opt);
+                modalFilterValid.appendChild(opt);
             });
-
-            filterStoreSelect.value = currentStore;
-            filterValidSelect.value = currentValid;
         }
 
         function renderViews() {
@@ -947,7 +1015,6 @@
             filtered.forEach((item) => {
                 const originalIndex = couponData.findIndex(c => c.id === item.id);
                 const tr = document.createElement('tr');
-
                 const isChecked = selectedCouponIds.has(item.id) ? 'checked' : '';
 
                 tr.innerHTML = `
@@ -984,7 +1051,6 @@
                 const originalIndex = couponData.findIndex(c => c.id === item.id);
                 const card = document.createElement('div');
                 card.className = 'coupon-card';
-
                 const isChecked = selectedCouponIds.has(item.id) ? 'checked' : '';
 
                 card.innerHTML = `
@@ -1031,12 +1097,61 @@
             });
         }
 
-        // Exportacion PNG con Marca de Agua Diagonal Repetida en Modo Claro y Oscuro
-        btnExportPng.addEventListener('click', () => {
+        // Exportacion de Texto Completo (Con Codigo)
+        btnModalCopyFullText.addEventListener('click', () => {
+            const selectedItems = couponData.filter(c => selectedCouponIds.has(c.id));
+            if (selectedItems.length === 0) {
+                alert('Seleccione al menos un cupón para copiar.');
+                return;
+            }
+
+            const textOutput = selectedItems.map((c, i) => {
+                const parts = [
+                    `${i + 1}. [${c.store.toUpperCase()}]`,
+                    c.desc,
+                    c.value ? `Descuento: ${c.value}` : null,
+                    `Código: ${c.code}`,
+                    `Vigencia: ${c.valid}`
+                ].filter(Boolean);
+                return parts.join(' | ');
+            }).join('\n\n');
+
+            navigator.clipboard.writeText(textOutput).then(() => {
+                showToast(`Copiados ${selectedItems.length} cupones completos`);
+                modalExport.style.display = 'none';
+            });
+        });
+
+        // Exportacion de Lista Informativa (Sin Codigo)
+        btnModalCopyInfoText.addEventListener('click', () => {
+            const selectedItems = couponData.filter(c => selectedCouponIds.has(c.id));
+            if (selectedItems.length === 0) {
+                alert('Seleccione al menos un cupón para copiar.');
+                return;
+            }
+
+            const textOutput = selectedItems.map((c, i) => {
+                const parts = [
+                    `${i + 1}. [${c.store.toUpperCase()}]`,
+                    c.desc,
+                    c.value ? `Descuento: ${c.value}` : null,
+                    `Vigencia: ${c.valid}`
+                ].filter(Boolean);
+                return parts.join(' | ');
+            }).join('\n');
+
+            navigator.clipboard.writeText(textOutput).then(() => {
+                showToast(`Copiada lista de ${selectedItems.length} cupones`);
+                modalExport.style.display = 'none';
+            });
+        });
+
+        // Exportacion PNG con Marca de Agua
+        btnModalExportPng.addEventListener('click', () => {
             const selectedItems = couponData.filter(c => selectedCouponIds.has(c.id));
 
             if (selectedItems.length === 0) {
-                alert('Seleccione al menos un cupón mediante la casilla o los filtros superiores.');
+                alert('Seleccione al menos un cupón para exportar.');
                 return;
             }
 
@@ -1052,7 +1167,6 @@
             canvas.width = width;
             canvas.height = totalHeight;
 
-            // Paleta de colores sincronizada
             const bgCanvas = isDark ? '#000000' : '#ffffff';
             const cardBg = isDark ? '#09090b' : '#f8fafc';
             const cardBorder = isDark ? '#27272a' : '#e2e8f0';
@@ -1062,25 +1176,21 @@
             const textValid = isDark ? '#38bdf8' : '#0284c7';
             const codeBoxBg = isDark ? '#18181b' : '#e2e8f0';
 
-            // Fondo solido base
             ctx.fillStyle = bgCanvas;
             ctx.fillRect(0, 0, width, totalHeight);
 
-            // Renderizado de Cupones
             selectedItems.forEach((c, i) => {
                 const cardX = padding;
                 const cardY = padding + (i * rowHeight);
                 const cardW = width - (padding * 2);
                 const cardH = rowHeight - 12;
 
-                // Contenedor tarjeta
                 ctx.fillStyle = cardBg;
                 ctx.fillRect(cardX, cardY, cardW, cardH);
                 ctx.strokeStyle = cardBorder;
                 ctx.lineWidth = 1;
                 ctx.strokeRect(cardX, cardY, cardW, cardH);
 
-                // Tienda y Valor
                 ctx.fillStyle = textStore;
                 ctx.font = 'bold 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
                 ctx.textAlign = 'left';
@@ -1092,7 +1202,6 @@
                     ctx.fillText(c.value, cardX + cardW - 14, cardY + 26);
                 }
 
-                // Descripcion
                 ctx.fillStyle = textDesc;
                 ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
                 ctx.textAlign = 'left';
@@ -1100,26 +1209,22 @@
                 if (desc.length > 52) desc = desc.substring(0, 49) + '...';
                 ctx.fillText(desc, cardX + 14, cardY + 48);
 
-                // Contenedor del Codigo
                 const codeBoxY = cardY + 60;
                 const codeBoxH = 34;
                 ctx.fillStyle = codeBoxBg;
                 ctx.fillRect(cardX + 12, codeBoxY, cardW - 24, codeBoxH);
 
-                // Codigo Monospace
                 ctx.fillStyle = textCode;
                 ctx.font = "bold 20px 'Consolas', 'Courier New', monospace";
                 ctx.textAlign = 'left';
                 ctx.fillText(c.code, cardX + 22, codeBoxY + 24);
 
-                // Fecha de Vigencia
                 ctx.fillStyle = textValid;
                 ctx.font = 'bold 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
                 ctx.textAlign = 'right';
                 ctx.fillText('VENCE: ' + c.valid, cardX + cardW - 22, codeBoxY + 23);
             });
 
-            // Marca de Agua Continua de Proteccion
             ctx.save();
             ctx.rotate(-28 * Math.PI / 180);
             ctx.font = "bold 17px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
@@ -1138,12 +1243,12 @@
             }
             ctx.restore();
 
-            // Descarga de archivo PNG
             const link = document.createElement('a');
             link.download = `Cupones_${Date.now()}.png`;
             link.href = canvas.toDataURL('image/png');
             link.click();
             showToast('Imagen PNG exportada con marca de agua');
+            modalExport.style.display = 'none';
         });
 
         function saveToStorage() {
@@ -1178,7 +1283,7 @@
                         couponData = parsed;
                         selectedCouponIds.clear();
                         saveToStorage();
-                        updateSelectionDropdowns();
+                        updateModalDropdowns();
                         renderViews();
                         showToast(`${couponData.length} registros cargados`);
                     } else {
@@ -1266,7 +1371,7 @@
                 }
             }
 
-            updateSelectionDropdowns();
+            updateModalDropdowns();
             renderViews();
         }
 
